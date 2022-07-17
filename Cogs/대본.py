@@ -434,6 +434,50 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(f"정상적으로 삭제 완료 하였습니다.\n\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']}\n대본아이디 : {대본아이디}```")
 
+    @app_commands.command(name="대본평가")
+    async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
+        with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
+            user_data = json.load(json_file)
+
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_data = json.load(json_file)
+
+        if 점수 not in [1, 2, 3, 4, 5]:
+            return await interaction.response.send_message("점수는 1점에서 5점 사이여야 합니다.", ephemeral=True)
+
+        if str(interaction.user.id) not in user_data.keys():
+            user_data[str(interaction.user.id)] = {
+                "grade": 0,
+                "warning": 0,
+                "review": {}
+            }
+
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_list = json.load(json_file)
+
+        if str(대본아이디) not in script_list.keys():
+            return await interaction.response.send_message("존재하지 않는 대본입니다.", ephemeral=True)
+
+        with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+            script_data = json.load(json_file)
+
+        if 대본아이디 in user_data[str(interaction.user.id)]["review"].keys():
+            await interaction.response.send_message(f"이미 평가한 대본이므로 평가를 수정하였습니다.\n({user_data[str(interaction.user.id)]['review'][대본아이디]}점 -> {점수}점)", ephemeral=True)
+            script_data[script_list[대본아이디]["type"]
+                        ][대본아이디]["rating"] -= user_data[str(interaction.user.id)]['review'][대본아이디]
+            script_data[script_list[대본아이디]["type"]][대본아이디]["rating"] += 점수
+        else:
+            script_data[script_list[대본아이디]["type"]][대본아이디]["rating"] += 점수
+            script_data[script_list[대본아이디]["type"]][대본아이디]["rating_users"] += 1
+            user_data[str(interaction.user.id)]['review'][대본아이디] = 점수
+            await interaction.response.send_message(f"{점수}점으로 평가하였습니다.", ephemeral=True)
+
+        with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
+            json.dump(user_data, json_file, ensure_ascii=False, indent=4)
+
+        with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "w", encoding="utf-8-sig") as json_file:
+            json.dump(script_data, json_file, ensure_ascii=False, indent=4)
+
     @app_commands.command(name="대본검색")
     async def 대본검색(self, interaction: Interaction, 검색: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
