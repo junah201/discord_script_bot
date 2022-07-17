@@ -613,7 +613,7 @@ class 대본(commands.Cog):
         embed.set_author(name=interaction.user.name)
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="대본평가", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 1점을 부여합니다. (하루에 1회 사용 가능)")
+    @app_commands.command(name="대본평가", description="대본에 대한 평가를 등록합니다. (점수는 1에서 5점 사이의 정수로 부여해주세요.)")
     async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             user_data = json.load(json_file)

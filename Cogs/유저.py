@@ -16,7 +16,7 @@ class 유저(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="유저평가")
+    @app_commands.command(name="유저평가", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 1점을 부여합니다. (유저 칸에는 원하는 유저를 맨션해주세요.) (하루에 1회 사용 가능)")
     async def 유저평가(self, interaction: Interaction, 유저: str):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             users_data = json.load(json_file)
@@ -60,7 +60,7 @@ class 유저(commands.Cog):
             print("error 발생")
             print(e)
 
-    @app_commands.command(name="유저정보")
+    @app_commands.command(name="유저정보", description="유저의 상태정보를 열람합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
     async def 유저정보(self, interaction: Interaction, 유저: str):
         user = await self.bot.fetch_user(유저[3:-1])
         member = await interaction.guild.fetch_member(user.id)
@@ -103,7 +103,7 @@ class 유저(commands.Cog):
                          text=f"요청자 : {interaction.user}")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="유저경고")
+    @app_commands.command(name="유저경고", description="유저를 경고합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
     async def 유저경고(self, interaction: Interaction, 유저: str):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             users_data = json.load(json_file)
