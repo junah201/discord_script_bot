@@ -22,7 +22,8 @@ class MyBot(commands.Bot):
             application_id=config['APPLICATION_ID']
         )
         self.initial_extension = [
-            "Cogs.대본"
+            "Cogs.대본",
+            "Cogs.유저"
         ]
 
     async def setup_hook(self):
