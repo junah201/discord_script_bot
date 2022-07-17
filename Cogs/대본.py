@@ -460,6 +460,28 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="대본상세정보")
+    async def 대본상세정보(self, interaction: Interaction, id: int):
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_list = json.load(json_file)
+
+        if str(id) not in script_list.keys():
+            return await interaction.response.send_message("존재하지 않는 대본입니다.", ephemeral=True)
+
+        with open(f"./DB/Script/{script_list[str(id)]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+            script_data = json.load(json_file)
+
+        script = script_data[script_list[str(id)]['type']][str(id)]
+
+        if script['rating'] == 0:
+            embed = discord.Embed(
+                title=f"{script_list[str(id)]['name']}", description=f"종류 : {script_list[str(id)]['type']}\n성별 : {script_list[str(id)]['gender']}\n링크 : {script['link']}\n평점 : {script['rating']}점 ({script['rating_users']}명)\n추가자 : {script['adder']} ({script['adder_id']})\n추가 시간 : {script['time']}", color=0x62c1cc)
+        else:
+            embed = discord.Embed(
+                title=f"{script_list[str(id)]['name']}", description=f"종류 : {script_list[str(id)]['type']}\n성별 : {script_list[str(id)]['gender']}\n링크 : {script['link']}\n평점 : {round(script['rating']/script['rating_users'], 1)}점 ({script['rating_users']}명)\n추가자 : {script['adder']} ({script['adder_id']})\n추가 시간 : {script['time']}", color=0x62c1cc)
+
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
