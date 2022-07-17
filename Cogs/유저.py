@@ -53,6 +53,12 @@ class 유저(commands.Cog):
 
         await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
 
+        if users_data[str(user.id)]['grade'] in [1, 10, 50, 100]:
+            member = await interaction.guild.fetch_member(user.id)
+            role = interaction.guild.get_role(
+                config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
+            await member.add_roles(role)
+
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
             log_embed = discord.Embed(
