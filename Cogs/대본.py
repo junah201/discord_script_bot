@@ -256,7 +256,7 @@ class 대본(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="모여")
+    @app_commands.command(name="모여", description="특정 역할을 가지고 있는 모두를 멘션한 후, 대본 리딩에 필요한 배우를 모집할 수 있습니다.")
     async def 모여(self, interaction: Interaction):
         embed = discord.Embed(color=0x62c1cc)
         embed.title = "💌 캐스팅 시작"
@@ -431,7 +431,7 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(content=f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&827887094307356673>", embed=embed, view=view)
 
-    @app_commands.command(name="대본")
+    @app_commands.command(name="대본", description="인원을 설정 후 대본 목록을 보여줍니다.")
     async def 대본(self, interaction: Interaction, 남: int, 여: int) -> None:
         datas = {}
 
@@ -479,7 +479,7 @@ class 대본(commands.Cog):
         view.add_item(delete_button)
         await interaction.response.send_message(embed=embed, view=view)
 
-    @app_commands.command(name="대본추가")
+    @app_commands.command(name="대본추가", description="따로 등록하고 싶은 대본을 추가합니다.")
     async def 대본추가(self, interaction: Interaction, 대본명: str, 링크: str, 남: int, 여: int, 공: int, 대본종류: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             Scripts = json.load(json_file)
@@ -582,7 +582,7 @@ class 대본(commands.Cog):
 
             await interaction.response.send_message(embed=embed, view=view)
 
-    @app_commands.command(name="대본삭제")
+    @app_commands.command(name="대본삭제", description="등록 되어 있는 대본의 ID를 이용해, 선택한 대본을 삭제할 수 있습니다.")
     async def 대본삭제(self, interaction: Interaction, 대본아이디: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             script_list = json.load(json_file)
@@ -613,7 +613,7 @@ class 대본(commands.Cog):
         embed.set_author(name=interaction.user.name)
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="대본평가")
+    @app_commands.command(name="대본평가", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 1점을 부여합니다. (하루에 1회 사용 가능)")
     async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             user_data = json.load(json_file)
@@ -626,9 +626,11 @@ class 대본(commands.Cog):
 
         if str(interaction.user.id) not in user_data.keys():
             user_data[str(interaction.user.id)] = {
+                "name": interaction.user.name,
                 "grade": 0,
-                "warning": 0,
-                "review": {}
+                "last_evaluate": "미평가",
+                "review": {},
+                "warning": 0
             }
 
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
@@ -657,7 +659,7 @@ class 대본(commands.Cog):
         with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "w", encoding="utf-8-sig") as json_file:
             json.dump(script_data, json_file, ensure_ascii=False, indent=4)
 
-    @app_commands.command(name="대본검색")
+    @app_commands.command(name="대본검색", description="등록 되어 있는 대본을 제목 또는 링크를 통해 찾아 볼 수 있습니다.")
     async def 대본검색(self, interaction: Interaction, 검색: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             script_list = json.load(json_file)
@@ -683,7 +685,7 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="대본상세정보")
+    @app_commands.command(name="대본상세정보", description="등록된 대본의 ID를 통해, 대본의 상세한 정보를 열람할 수 있습니다.")
     async def 대본상세정보(self, interaction: Interaction, id: int):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             script_list = json.load(json_file)
