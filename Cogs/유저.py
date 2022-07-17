@@ -55,9 +55,9 @@ class 유저(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[유저평가] error 발생")
             print(e)
@@ -107,9 +107,9 @@ class 유저(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[유저정보]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[유저정보] error 발생")
             print(e)
@@ -139,9 +139,9 @@ class 유저(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[유저경고]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n경고 : `{users_data[str(user.id)]['warning'] - 1} -> {users_data[str(user.id)]['warning']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[유저경고] error 발생")
             print(e)

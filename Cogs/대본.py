@@ -433,9 +433,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`", color=0x62c1cc)
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본] error 발생")
             print(e)
@@ -490,9 +490,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n키워드 : `{남}남{여}여`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본] error 발생")
             print(e)
@@ -602,9 +602,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_IMPORTANT_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본추가]", description=f"사용자 : `{interaction.user.name} ({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본 : [{대본명}]({링크}) - `{config['NEW_IDX'] - 1}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본추가] error 발생")
             print(e)
@@ -642,9 +642,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_IMPORTANT_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본삭제]", description=f"사용자 : `{interaction.user.name} ({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본 : [{tmp['name']}]({tmp['link']}) `{대본아이디}`\n시간 : ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본삭제] error 발생")
             print(e)
@@ -697,9 +697,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본평가]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본명 : [{script_data[script_list[대본아이디]['type']][대본아이디]['name']}]({script_data[script_list[대본아이디]['type']][대본아이디]['link']})  `{대본아이디}`\n점수 : `{점수}점`)\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본평가] error 발생")
             print(e)
@@ -732,9 +732,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본검색]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n키워드 : `{검색}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본검색] error 발생")
             print(e)
@@ -763,9 +763,9 @@ class 대본(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            embed = discord.Embed(
+            log_embed = discord.Embed(
                 title="[대본상세정보]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\nID : `{id}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=embed)
+            await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본상세정보] error 발생")
             print(e)
