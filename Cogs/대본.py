@@ -304,6 +304,109 @@ class 대본(commands.Cog):
         view.add_item(delete_button)
         await interaction.response.send_message(embed=embed, view=view)
 
+    @app_commands.command(name="대본추가")
+    async def 대본추가(self, interaction: Interaction, 대본명: str, 링크: str, 남: int, 여: int, 공: int, 대본종류: str):
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            Scripts = json.load(json_file)
+
+        is_exist = None
+
+        for key in Scripts.keys():
+            if Scripts[key]['link'] == 링크:
+                is_exist = key
+                break
+
+        async def regist_script():
+            filename = f"{남}남{여}여{공}공.json"
+
+            if filename in await 대본목록():
+                with open(f"./DB/Script/{filename}", "r", encoding="utf-8-sig") as json_file:
+                    datas = json.load(json_file)
+
+                if 대본종류 not in datas.keys():
+                    datas[대본종류] = {}
+
+                datas[대본종류][str(config["NEW_IDX"])] = {
+                    "name": 대본명,
+                    "link": 링크,
+                    "type": {
+                        "name": f"{남}남{여}여{공}공",
+                        "남": 남,
+                        "여": 여,
+                        "공": 공
+                    },
+                    "rating": 0,
+                    "rating_users": 0,
+                    "adder": interaction.user.name,
+                    "adder_id": interaction.user.id,
+                    "time": datetime.datetime.today().strftime('%c')
+                }
+
+            else:
+                datas = {}
+
+                datas[대본종류] = {}
+
+                datas[대본종류][str(config["NEW_IDX"])] = {
+                    "name": 대본명,
+                    "link": 링크,
+                    "type": 대본종류,
+                    "gender": {
+                        "name": f"{남}남{여}여{공}공",
+                        "남": 남,
+                        "여": 여,
+                        "공": 공
+                    },
+                    "rating": 0,
+                    "rating_users": 0,
+                    "adder": interaction.user.name,
+                    "adder_id": interaction.user.id,
+                    "time": datetime.datetime.today().strftime('%c')
+                }
+
+            with open(f"./DB/Script/{filename}", "w", encoding="utf-8-sig") as json_file:
+                json.dump(datas, json_file, ensure_ascii=False, indent=4)
+
+            with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+                Scripts = json.load(json_file)
+
+            Scripts[str(config["NEW_IDX"])] = {
+                "name": 대본명,
+                "type": 대본종류,
+                "gender": f"{남}남{여}여{공}공",
+                "link": 링크
+            }
+
+            with open(f"./DB/Script/Script.json", "w", encoding="utf-8-sig") as json_file:
+                json.dump(Scripts, json_file, ensure_ascii=False, indent=4)
+
+            embed = discord.Embed(
+                title=f"{대본명}", description=f"성공적으로 대본이 추가되었습니다.\n\n대본명 : {대본명}\n대본종류 : {대본종류}\n성비 : {남}남{여}여{공}공\n추가자 : {interaction.user.name}\n추가시간 : {datetime.datetime.today().strftime('%c')}\n아이디 : {config['NEW_IDX']}\n링크 : {링크}", color=0x62c1cc)
+
+            config["NEW_IDX"] += 1
+
+            with open(f"config.json", "w", encoding="utf-8-sig") as json_file:
+                json.dump(config, json_file, ensure_ascii=False, indent=4)
+
+            return embed
+
+        if is_exist == None:
+            await interaction.response.send_message(embed=await regist_script())
+        else:
+            embed = discord.Embed(
+                title="중복 경고", description=f"`{is_exist}`\n원본 : {Scripts[is_exist]['link']}\n추가 : {링크}", color=0xFF0000)
+            add_button = discord.ui.Button(label="계속 추가하기")
+
+            async def add_button_callback(interaction: Interaction):
+                await interaction.response.send_message(embed=await regist_script())
+
+            add_button.callback = add_button_callback
+
+            view = discord.ui.View()
+            view.add_item(add_button)
+
+            await interaction.response.send_message(embed=embed, view=view)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
