@@ -103,6 +103,36 @@ class 유저(commands.Cog):
                          text=f"요청자 : {interaction.user}")
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="유저경고")
+    async def 유저경고(self, interaction: Interaction, 유저: str):
+        with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
+            users_data = json.load(json_file)
+
+        user = await self.bot.fetch_user(유저[3:-1])
+
+        if users_data.get(str(user.id)) == None:
+            users_data[str(user.id)] = {
+                "name": user.name,
+                "grade": 0,
+                "last_evaluate": "미평가",
+                "review": {},
+                "warning": 0
+            }
+
+        users_data[str(user.id)]['warning'] += 1
+
+        with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
+            json.dump(users_data, json_file, indent=4)
+
+        await interaction.response.send_message(f"{user.mention}님의 대한 경고가 완료되어 총 경고 수가 `{users_data[str(user.id)]['warning']}`으로 변화하였습니다.", ephemeral=True)
+
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            await channel.send(f"[경고] `{interaction.user.name}({interaction.user.id})`님이 `{user.name}({user.id})`님을 경고하여 경고 수가 `{users_data[str(user.id)]['warning']}`로 변화하였습니다. `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+        except Exception as e:
+            print("error 발생")
+            print(e)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
