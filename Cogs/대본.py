@@ -597,6 +597,7 @@ class 대본(commands.Cog):
         except:
             pass
         try:
+            tmp.update(script_data[tmp['type']][str(대본아이디)])
             script_data[tmp['type']].pop(str(대본아이디))
         except:
             pass
@@ -607,7 +608,10 @@ class 대본(commands.Cog):
         with open(f"./DB/Script/{tmp['gender']}.json", "w", encoding="utf-8-sig") as json_file:
             json.dump(script_data, json_file, ensure_ascii=False, indent=4)
 
-        await interaction.response.send_message(f"정상적으로 삭제 완료 하였습니다.\n\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']}\n대본아이디 : {대본아이디}```")
+        embed = discord.Embed(
+            title="삭제 완료", description=f"정상적으로 삭제 완료 하였습니다.\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']['name']}\n대본아이디 : {대본아이디}\n추가자 : {tmp['adder']}```")
+        embed.set_author(name=interaction.user.name)
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="대본평가")
     async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
