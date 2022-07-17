@@ -626,9 +626,11 @@ class 대본(commands.Cog):
 
         if str(interaction.user.id) not in user_data.keys():
             user_data[str(interaction.user.id)] = {
+                "name": interaction.user.name,
                 "grade": 0,
-                "warning": 0,
-                "review": {}
+                "last_evaluate": "미평가",
+                "review": {},
+                "warning": 0
             }
 
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
