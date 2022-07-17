@@ -55,9 +55,11 @@ class 유저(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            await channel.send(f"[평가] `{interaction.user.name}({interaction.user.id})`님이 `{user.name}({user.id})`님을 평가하여 점수가 `{users_data[str(user.id)]['grade']}`로 변화하였습니다. `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            embed = discord.Embed(
+                title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
         except Exception as e:
-            print("error 발생")
+            print("[유저평가] error 발생")
             print(e)
 
     @app_commands.command(name="유저정보", description="유저의 상태정보를 열람합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
@@ -103,6 +105,15 @@ class 유저(commands.Cog):
                          text=f"요청자 : {interaction.user}")
         await interaction.response.send_message(embed=embed)
 
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            embed = discord.Embed(
+                title="[유저정보]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[유저정보] error 발생")
+            print(e)
+
     @app_commands.command(name="유저경고", description="유저를 경고합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
     async def 유저경고(self, interaction: Interaction, 유저: str):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
@@ -128,9 +139,11 @@ class 유저(commands.Cog):
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            await channel.send(f"[경고] `{interaction.user.name}({interaction.user.id})`님이 `{user.name}({user.id})`님을 경고하여 경고 수가 `{users_data[str(user.id)]['warning']}`로 변화하였습니다. `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            embed = discord.Embed(
+                title="[유저경고]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n경고 : `{users_data[str(user.id)]['warning'] - 1} -> {users_data[str(user.id)]['warning']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
         except Exception as e:
-            print("error 발생")
+            print("[유저경고] error 발생")
             print(e)
 
 

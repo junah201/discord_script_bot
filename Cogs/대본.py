@@ -431,6 +431,15 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(content=f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&827887094307356673>", embed=embed, view=view)
 
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`", color=0x62c1cc)
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본] error 발생")
+            print(e)
+
     @app_commands.command(name="대본", description="인원을 설정 후 대본 목록을 보여줍니다.")
     async def 대본(self, interaction: Interaction, 남: int, 여: int) -> None:
         datas = {}
@@ -478,6 +487,15 @@ class 대본(commands.Cog):
         view.add_item(selects)
         view.add_item(delete_button)
         await interaction.response.send_message(embed=embed, view=view)
+
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n키워드 : `{남}남{여}여`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본] error 발생")
+            print(e)
 
     @app_commands.command(name="대본추가", description="따로 등록하고 싶은 대본을 추가합니다.")
     async def 대본추가(self, interaction: Interaction, 대본명: str, 링크: str, 남: int, 여: int, 공: int, 대본종류: str):
@@ -582,6 +600,15 @@ class 대본(commands.Cog):
 
             await interaction.response.send_message(embed=embed, view=view)
 
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_IMPORTANT_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본추가]", description=f"사용자 : `{interaction.user.name} ({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본 : [{대본명}]({링크}) - `{config['NEW_IDX'] - 1}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본추가] error 발생")
+            print(e)
+
     @app_commands.command(name="대본삭제", description="등록 되어 있는 대본의 ID를 이용해, 선택한 대본을 삭제할 수 있습니다.")
     async def 대본삭제(self, interaction: Interaction, 대본아이디: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
@@ -612,6 +639,15 @@ class 대본(commands.Cog):
             title="삭제 완료", description=f"정상적으로 삭제 완료 하였습니다.\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']['name']}\n대본아이디 : {대본아이디}\n추가자 : {tmp['adder']}```")
         embed.set_author(name=interaction.user.name)
         await interaction.response.send_message(embed=embed)
+
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_IMPORTANT_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본삭제]", description=f"사용자 : `{interaction.user.name} ({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본 : [{tmp['name']}]({tmp['link']}) `{대본아이디}`\n시간 : ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본삭제] error 발생")
+            print(e)
 
     @app_commands.command(name="대본평가", description="대본에 대한 평가를 등록합니다. (점수는 1에서 5점 사이의 정수로 부여해주세요.)")
     async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
@@ -659,6 +695,15 @@ class 대본(commands.Cog):
         with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "w", encoding="utf-8-sig") as json_file:
             json.dump(script_data, json_file, ensure_ascii=False, indent=4)
 
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본평가]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본명 : [{script_data[script_list[대본아이디]['type']][대본아이디]['name']}]({script_data[script_list[대본아이디]['type']][대본아이디]['link']})  `{대본아이디}`\n점수 : `{점수}점`)\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본평가] error 발생")
+            print(e)
+
     @app_commands.command(name="대본검색", description="등록 되어 있는 대본을 제목 또는 링크를 통해 찾아 볼 수 있습니다.")
     async def 대본검색(self, interaction: Interaction, 검색: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
@@ -685,6 +730,15 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본검색]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n키워드 : `{검색}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본검색] error 발생")
+            print(e)
+
     @app_commands.command(name="대본상세정보", description="등록된 대본의 ID를 통해, 대본의 상세한 정보를 열람할 수 있습니다.")
     async def 대본상세정보(self, interaction: Interaction, id: int):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
@@ -706,6 +760,15 @@ class 대본(commands.Cog):
                 title=f"{script_list[str(id)]['name']}", description=f"종류 : {script_list[str(id)]['type']}\n성별 : {script_list[str(id)]['gender']}\n링크 : {script['link']}\n평점 : {round(script['rating']/script['rating_users'], 1)}점 ({script['rating_users']}명)\n추가자 : {script['adder']} ({script['adder_id']})\n추가 시간 : {script['time']}", color=0x62c1cc)
 
         await interaction.response.send_message(embed=embed)
+
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            embed = discord.Embed(
+                title="[대본상세정보]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\nID : `{id}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=embed)
+        except Exception as e:
+            print("[대본상세정보] error 발생")
+            print(e)
 
 
 async def setup(bot: commands.Bot) -> None:
