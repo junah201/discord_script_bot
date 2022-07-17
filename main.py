@@ -9,6 +9,9 @@ import datetime
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
+with open(f"color.json", "r", encoding="utf-8-sig") as json_file:
+    color = json.load(json_file)
+
 
 class MyBot(commands.Bot):
     def __init__(self):
@@ -18,9 +21,15 @@ class MyBot(commands.Bot):
             sync_command=True,
             application_id=config['APPLICATION_ID']
         )
+        self.initial_extension = [
+            "Cogs.대본"
+        ]
 
     async def setup_hook(self):
-        await bot.tree.sync(guild=discord.Object(id=config['GUILD_ID']))
+        for ext in self.initial_extension:
+            await self.load_extension(ext)
+
+        await bot.tree.sync(guild=discord.Object(id=827801772143017994))
 
     async def on_ready(self):
         print("=========================")
