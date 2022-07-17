@@ -407,6 +407,33 @@ class 대본(commands.Cog):
 
             await interaction.response.send_message(embed=embed, view=view)
 
+    @app_commands.command(name="대본삭제")
+    async def 대본삭제(self, interaction: Interaction, 대본아이디: str):
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_list = json.load(json_file)
+
+        if str(대본아이디) not in script_list.keys():
+            return await interaction.response.send_message("존재하지 않는 대본입니다.", ephemeral=True)
+
+        with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+            script_data = json.load(json_file)
+        try:
+            tmp = script_list.pop(str(대본아이디))
+        except:
+            pass
+        try:
+            script_data[tmp['type']].pop(str(대본아이디))
+        except:
+            pass
+
+        with open(f"./DB/Script/Script.json", "w", encoding="utf-8-sig") as json_file:
+            json.dump(script_list, json_file, ensure_ascii=False, indent=4)
+
+        with open(f"./DB/Script/{tmp['gender']}.json", "w", encoding="utf-8-sig") as json_file:
+            json.dump(script_data, json_file, ensure_ascii=False, indent=4)
+
+        await interaction.response.send_message(f"정상적으로 삭제 완료 하였습니다.\n\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']}\n대본아이디 : {대본아이디}```")
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
