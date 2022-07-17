@@ -434,6 +434,32 @@ class 대본(commands.Cog):
 
         await interaction.response.send_message(f"정상적으로 삭제 완료 하였습니다.\n\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']}\n대본아이디 : {대본아이디}```")
 
+    @app_commands.command(name="대본검색")
+    async def 대본검색(self, interaction: Interaction, 검색: str):
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_list = json.load(json_file)
+
+        result = []
+
+        for key in script_list.keys():
+            if 검색 in script_list[key]["name"]:
+                result.append((key, script_list[key]))
+            elif 검색 in script_list[key]["link"]:
+                result.append((key, script_list[key]))
+
+        if len(result) == 0:
+            return await interaction.response.send_message("검색 결과가 없습니다.", ephemeral=True)
+
+        embed = discord.Embed(
+            title=f"{검색} 검색 결과", description=f"총 {len(result)}개의 결과가 있습니다.\n\n", color=0x62c1cc
+        )
+
+        for key, data in result:
+            embed.add_field(name=f"{data['name']}",
+                            value=f">>> {data['type']}   {data['gender']} ({key})\n{data['link']}", inline=False)
+
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
