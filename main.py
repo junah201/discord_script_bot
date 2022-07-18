@@ -23,7 +23,8 @@ class MyBot(commands.Bot):
         )
         self.initial_extension = [
             "Cogs.대본",
-            "Cogs.유저"
+            "Cogs.유저",
+            "Cogs.유틸",
         ]
 
     async def setup_hook(self):
