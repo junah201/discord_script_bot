@@ -126,6 +126,26 @@ class 단문(commands.Cog):
         embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="단문리스트", description="단문 예약 목록을 보여줍니다.")
+    async def 단문리스트(self, interaction: Interaction):
+        if short_script.get(str(interaction.channel.id)) == None:
+            await interaction.response.send_message(f"단문예약이 시작하지 않았습니다. `/단문예약`을 사용해주세요.")
+            return
+
+        time_delta = (datetime.datetime.now() -
+                      short_script[str(interaction.channel.id)]["last_time"]).seconds
+
+        embed = discord.Embed(
+            title="단문 리스트", description=f"시작시간 : {time_delta // 60}분 {time_delta % 60}초 전", color=0xFFFF00)
+        embed.add_field(
+            name="현재 인원", value=short_script[str(interaction.channel.id)]["last_member"], inline=False)
+        embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
+        embed.set_thumbnail(
+            url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
+        embed.set_image(
+            url="https://media.discordapp.net/attachments/424831572861124619/549533764880171018/da41590cda439e68.gif")
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
