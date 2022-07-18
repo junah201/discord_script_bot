@@ -23,8 +23,8 @@ class 유틸(commands.Cog):
             title='⠀⠀⠀⠀〔⠀⠀⠀🥇 제비 뽑기⠀⠀⠀〕',
             description='연기자에게 랜덤하게 번호를 부여합니다.',
             color=discord.Color(0xFFFF00)
-
         )
+
         embed.set_thumbnail(
             url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
         embed.set_image(
@@ -37,7 +37,7 @@ class 유틸(commands.Cog):
 
         for user, num in zip(users, random_num):
             embed.add_field(name=f"\t\t\t\t**⠀⠀⠀⠀⠀⠀《⠀⠀⠀⠀⠀{user}⠀⠀⠀⠀⠀》**",
-                            value=f"*{user}* 님은 : ||[⠀⠀⠀⠀⠀{num}⠀⠀⠀⠀⠀]||      번 입니다.", inline=False)
+                            value=f"*{user}* 님은 : ||[⠀⠀⠀⠀⠀{num}⠀⠀⠀⠀⠀]||     번 입니다.", inline=False)
 
         await interaction.response.send_message(embed=embed)
 
