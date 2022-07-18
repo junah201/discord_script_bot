@@ -101,6 +101,31 @@ class 단문(commands.Cog):
         embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="단문다음", description="현재 연기 중인 유저를 스킵하고 다음 유저를 연기합니다.")
+    async def 단문다음(self, interaction: Interaction):
+        if short_script.get(str(interaction.channel.id)) == None:
+            await interaction.response.send_message(f"단문예약이 시작하지 않았습니다. `/단문예약`을 사용해주세요.")
+            return
+
+        short_script[str(interaction.channel.id)]["last_member"] = None
+
+        if short_script[str(interaction.channel.id)]["members"] == []:
+            short_script.pop(str(interaction.channel.id))
+            embed = discord.Embed(
+                title="단문 연기 종료", description="목록에 유저가 없음에 따라 단문 연기가 종료되었습니다.", color=discord.Color(0x00FF00))
+            await interaction.response.send_message(embed=embed)
+            return
+
+        short_script[str(interaction.channel.id)]["last_member"] = short_script[str(
+            interaction.channel.id)]["members"].pop(0)
+
+        embed = discord.Embed(
+            title="다음 연기자", description=f"다음 연기자는 < {short_script[str(interaction.channel.id)]['last_member']} > 님입니다.", color=discord.Color(0x00FF00))
+        embed.add_field(
+            name="현재 인원", value=short_script[str(interaction.channel.id)]["last_member"], inline=False)
+        embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
