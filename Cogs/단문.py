@@ -59,6 +59,48 @@ class 단문(commands.Cog):
                 embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
                 await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="단문스킵", description="예약목록에서 해당 유저를 스킵합니다. (유저를 선택하지 않을 경우 본인을 스킵합니다.) (유저 칸에는 유저를 맨션해주세요.)")
+    async def 단문스킵(self, interaction: Interaction, 유저: str = None):
+        if short_script.get(str(interaction.channel.id)) == None:
+            await interaction.response.send_message(f"단문예약이 시작하지 않았습니다. `/단문예약`을 사용해주세요.")
+            return
+
+        if 유저 == None:
+            유저 = interaction.user.mention
+
+        if 유저 in short_script[str(interaction.channel.id)]["members"]:
+            short_script[str(interaction.channel.id)]["members"].remove(유저)
+        elif 유저 == short_script[str(interaction.channel.id)]["last_member"]:
+            short_script[str(interaction.channel.id)]["last_member"] = None
+            if not short_script[str(interaction.channel.id)]["members"]:
+                short_script.pop(str(interaction.channel.id))
+                embed = discord.Embed(
+                    title="단문 연기 종료", description="목록에 유저가 없음에 따라 단문 연기가 종료되었습니다.", color=discord.Color(0x00FF00))
+                await interaction.response.send_message(embed=embed)
+                return
+            else:
+                short_script[str(interaction.channel.id)]["last_member"] = short_script[str(
+                    interaction.channel.id)]["members"][0]
+                short_script[str(interaction.channel.id)]["members"].pop(0)
+        else:
+            embed = discord.Embed(
+                title="없는 유저 경고", description=f"< {interaction.user.mention} > 님은 이미 목록에 있습니다.", color=discord.Color(0xFF0000))
+
+            embed.add_field(
+                name="현재 인원", value=short_script[str(interaction.channel.id)]["last_member"], inline=False)
+
+            embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
+
+            await interaction.response.send_message(embed=embed)
+            return
+
+        embed = discord.Embed(
+            title="스킵 완료", description=f"< {interaction.user.mention} > 님이 예약목록에서 스킵되었습니다.", color=discord.Color(0x00FF00))
+        embed.add_field(
+            name="현재 인원", value=short_script[str(interaction.channel.id)]["last_member"], inline=False)
+        embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
