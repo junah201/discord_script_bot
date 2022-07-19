@@ -95,7 +95,7 @@ async def 대본생성(types: list, man: int, woman: int):
         "add_time": datetime.datetime.now()
     }
 
-    view = discord.ui.View()
+    view = discord.ui.View(timeout=1200)
 
     front_back_button = discord.ui.Button(
         emoji="⏪", style=discord.ButtonStyle.primary)
@@ -270,7 +270,7 @@ class 대본(commands.Cog):
                          icon_url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
         embed.set_thumbnail(url=str(interaction.user.display_avatar))
 
-        view = discord.ui.View()
+        view = discord.ui.View(timeout=1200)
 
         join_button = discord.ui.Button(label="참여",
                                         emoji="<:cst:840538932906950682>", style=discord.ButtonStyle.green)
@@ -380,7 +380,7 @@ class 대본(commands.Cog):
                 ending_embed = discord.Embed(
                     title="캐스팅 완료", description=f"총 {len(man_users)}남{len(woman_users)}여", color=0x62c1cc)
 
-                ending_view = discord.ui.View()
+                ending_view = discord.ui.View(timeout=1200)
 
                 tmp = '\n'.join(man_users)
                 if tmp == "":
@@ -419,7 +419,7 @@ class 대본(commands.Cog):
 
                 selects.callback = select_callback
 
-                ending_view = discord.ui.View()
+                ending_view = discord.ui.View(timeout=1200)
                 ending_view.add_item(selects)
 
                 await interaction.channel.send(embed=ending_embed, view=ending_view)
@@ -483,7 +483,7 @@ class 대본(commands.Cog):
             title="대본 선택", description="대본을 선택해주세요.", color=0x62c1cc)
         embed.set_footer(text=f"{남}남{여}여")
         embed.set_author(name=f'{interaction.user.name}')
-        view = discord.ui.View()
+        view = discord.ui.View(timeout=1200)
         view.add_item(selects)
         view.add_item(delete_button)
         await interaction.response.send_message(embed=embed, view=view)
@@ -595,7 +595,7 @@ class 대본(commands.Cog):
 
             add_button.callback = add_button_callback
 
-            view = discord.ui.View()
+            view = discord.ui.View(timeout=1200)
             view.add_item(add_button)
 
             await interaction.response.send_message(embed=embed, view=view)
