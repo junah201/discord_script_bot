@@ -41,13 +41,15 @@ class MyBot(commands.Bot):
         await role_channel.purge(limit=None)
 
         role_init_embed = discord.Embed(
-            title="환영합니다. REC 서버입니다.", description="📌 ┃서버에 입장 하기 전, 3가지 중요한 설문에 참여 하시면 각 설문마다 해당 역할이 추가됩니다.\n\n📛 ┃설문에 응하지 않으시면 서버를 이용하실 수 없습니다.")
+            title="환영합니다. REC 서버입니다.", description="📌 ┃ 세 가지 중요한 설문에 참여 하시면 각 설문마다 해당 역할이 추가됩니다.\n\n📛 ┃설문에 응하지 않으시면 서버를 이용하실 수 없습니다.", color=0xffee40)
         await role_channel.send(embed=role_init_embed)
 
         # 역할 채널 세팅 - 성별
-        gender_embed = discord.Embed(title=":red_circle: 성별이 어떻게 되시나요?")
+        gender_embed = discord.Embed(
+            title=":red_circle: 성별이 어떻게 되시나요?", color=0xffee40)
         gender_view = discord.ui.View(timeout=None)
-        man_button = discord.ui.Button(label="남성 배우")
+        man_button = discord.ui.Button(
+            emoji="♂️", label="남성 배우", style=discord.ButtonStyle.primary)
 
         async def man_button_callback(interaction: discord.Interaction):
             man_role = discord.utils.get(
@@ -66,7 +68,8 @@ class MyBot(commands.Bot):
 
         man_button.callback = man_button_callback
 
-        woman_button = discord.ui.Button(label="여성 배우")
+        woman_button = discord.ui.Button(
+            emoji="♀️", label="여성 배우", style=discord.ButtonStyle.primary)
 
         async def woman_button_callback(interaction: discord.Interaction):
             man_role = discord.utils.get(
@@ -92,10 +95,12 @@ class MyBot(commands.Bot):
 
         # 역할 채널 세팅 - 활동
 
-        activeity_embed = discord.Embed(title=":red_circle:  어떤 활동을 원하시나요?")
+        activeity_embed = discord.Embed(
+            title=":red_circle:  어떤 활동을 원하시나요?", color=0xffee40)
         activeity_view = discord.ui.View(timeout=None)
 
-        acting_button = discord.ui.Button(label="연기")
+        acting_button = discord.ui.Button(
+            emoji="<:mic:841221542875627571>", label="연기", style=discord.ButtonStyle.primary)
 
         async def acting_button_callback(interaction: discord.Interaction):
             acting_role = discord.utils.get(
@@ -117,7 +122,8 @@ class MyBot(commands.Bot):
 
         acting_button.callback = acting_button_callback
 
-        writer_button = discord.ui.Button(label="작가")
+        writer_button = discord.ui.Button(
+            emoji="✏️", label="작가", style=discord.ButtonStyle.primary)
 
         async def writer_button_callback(interaction: discord.Interaction):
             acting_role = discord.utils.get(
@@ -139,7 +145,8 @@ class MyBot(commands.Bot):
 
         writer_button.callback = writer_button_callback
 
-        listener_button = discord.ui.Button(label="청취")
+        listener_button = discord.ui.Button(
+            emoji="👀", label="청취", style=discord.ButtonStyle.primary)
 
         async def listener_button_callback(interaction: discord.Interaction):
             acting_role = discord.utils.get(
@@ -170,10 +177,11 @@ class MyBot(commands.Bot):
         # 역할 채널 세팅 - 장르
 
         preference_embed = discord.Embed(
-            title=":red_circle:  어떤 장르를 선호하시나요?")
+            title=":red_circle:  어떤 장르를 선호하시나요?", color=0xffee40)
         preference_view = discord.ui.View(timeout=None)
 
-        radio_drama_button = discord.ui.Button(label="라디오 드라마")
+        radio_drama_button = discord.ui.Button(
+            emoji="📑", label="라디오 드라마", style=discord.ButtonStyle.primary)
 
         async def radio_drama_button_callback(interaction: discord.Interaction):
             radio_drama_role = discord.utils.get(
@@ -192,7 +200,8 @@ class MyBot(commands.Bot):
 
         radio_drama_button.callback = radio_drama_button_callback
 
-        animation_button = discord.ui.Button(label="애니매이션")
+        animation_button = discord.ui.Button(
+            emoji="🧸", label="애니매이션", style=discord.ButtonStyle.primary)
 
         async def animation_button_callback(interaction: discord.Interaction):
             animation_role = discord.utils.get(
@@ -211,7 +220,8 @@ class MyBot(commands.Bot):
 
         animation_button.callback = animation_button_callback
 
-        narration_button = discord.ui.Button(label="독백/내레이션")
+        narration_button = discord.ui.Button(
+            emoji="📻", label="독백/내레이션", style=discord.ButtonStyle.primary)
 
         async def narration_button_callback(interaction: discord.Interaction):
             narration_role = discord.utils.get(
@@ -230,7 +240,8 @@ class MyBot(commands.Bot):
 
         narration_button.callback = narration_button_callback
 
-        media_button = discord.ui.Button(label="매체연기")
+        media_button = discord.ui.Button(
+            emoji="📺", label="매체연기", style=discord.ButtonStyle.primary)
 
         async def media_button_callback(interaction: discord.Interaction):
             media_role = discord.utils.get(
@@ -258,10 +269,11 @@ class MyBot(commands.Bot):
         # 역할 채널 세팅 - 대배우
 
         grant_actor_embed = discord.Embed(
-            title="", description=": yellow_square: 설문에 응해주셔서 감사드립니다.\n: arrow_down: 아래에서: white_check_mark: 선택해 주시면 서버에 입장됩니다.\n: name_badge: 입장 후에는 현 페이지로 돌아올 수 없습니다.")
+            description="❤️ 설문에 응해주셔서 감사드립니다.\n 아래 완료 버튼을 누르시면 서버로 입장됩니다.", color=0xff80bf)
         grant_actor_view = discord.ui.View(timeout=None)
 
-        grant_actor_button = discord.ui.Button(label="체크")
+        grant_actor_button = discord.ui.Button(
+            emoji="<:cst:840538932906950682>", label="완료", style=discord.ButtonStyle.success)
 
         async def grant_actor_button_callback(interaction: discord.Interaction):
             await interaction.user.add_roles(
