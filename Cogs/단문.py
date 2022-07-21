@@ -37,7 +37,9 @@ class 단문(commands.Cog):
                 "members": [],
                 "last_time": datetime.datetime.now()
             }
-            await interaction.response.send_message(f"< {interaction.user.mention} > 님이 예약목록을 만들고, 연기를 시작하셨습니다.")
+            embed = discord.Embed(
+                title="단문 예약", description=f"< {interaction.user.mention} > 님이 예약목록을 만들고, 연기를 시작하셨습니다.", color=discord.Color(0xFFFF00))
+            await interaction.response.send_message(embed=embed)
         else:
             if interaction.user.mention in short_script[str(interaction.channel.id)]["members"] or interaction.user.mention in short_script[str(interaction.channel.id)]["last_member"]:
                 embed = discord.Embed(
@@ -136,14 +138,14 @@ class 단문(commands.Cog):
                       short_script[str(interaction.channel.id)]["last_time"]).seconds
 
         embed = discord.Embed(
-            title="단문 리스트", description=f"시작시간 : {time_delta // 60}분 {time_delta % 60}초 전", color=0xFFFF00)
+            title="📑 단문 리스트", description=f"시작시간 : {time_delta // 60}분 {time_delta % 60}초 전", color=0xFFFF00)
         embed.add_field(
-            name="현재 인원", value=short_script[str(interaction.channel.id)]["last_member"], inline=False)
-        embed.add_field(name="예약목록", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
+            name="현재 연기자", value=short_script[str(interaction.channel.id)]["last_member"], inline=False)
+        embed.add_field(name="예약 인원 리스트", value=await get_member_list(short_script[str(interaction.channel.id)]["members"]), inline=False)
         embed.set_thumbnail(
             url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
         embed.set_image(
-            url="https://media.discordapp.net/attachments/424831572861124619/549533764880171018/da41590cda439e68.gif")
+            url="https://i.imgur.com/IO3jvcq.gif")
         await interaction.response.send_message(embed=embed)
 
 

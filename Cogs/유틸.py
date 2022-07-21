@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord import Interaction
 from discord import Object
+import asyncio
 
 import json
 import os
@@ -28,7 +29,7 @@ class 유틸(commands.Cog):
         embed.set_thumbnail(
             url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
         embed.set_image(
-            url="https://media.discordapp.net/attachments/424831572861124619/549533764880171018/da41590cda439e68.gif")
+            url="https://i.imgur.com/xLNYJF0.png")
 
         users = 유저.split()
 
@@ -40,6 +41,37 @@ class 유틸(commands.Cog):
                             value=f"*{user}* 님은 : ||[⠀⠀⠀⠀⠀{num}⠀⠀⠀⠀⠀]||     번 입니다.", inline=False)
 
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="준비", description="예약된 시간 후에 모두에게 멘션을 줍니다.")
+    async def 준비(self, interaction: Interaction, 초: int):
+        embed = discord.Embed(
+            title='⠀⠀⠀⠀〔⠀⠀⠀🥇 준비⠀⠀⠀〕',
+            description='정한 시간을 정했습니다..',
+            color=discord.Color(0xFFFF00)
+        )
+
+        embed.set_thumbnail(
+            url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
+        embed.set_image(
+            url="https://i.imgur.com/xLNYJF0.png")
+
+        embed = discord.Embed(
+            title="리딩이 예약 되었습니다.", description=f"{초}초 후에 대본 리딩이 시작됩니다.", timestamp=datetime.datetime.now(), color=0xFFFF00)
+
+        embed_time = discord.Embed(
+            title="< 예약된 알림 >", description=f"잠시 후 대본 리딩이 시작 됩니다.", timestamp=datetime.datetime.now(), color=0xFFFF00)
+        embed_time.add_field(
+            name="< 리딩 에티켓 >", value="```1. 과한 애드립은 삼가주세요.``````2. 자기 차례를 필히 준수해 주세요.``````3. 역할 찾기 : F3 또는 컨트롤+F```", inline=False)
+        embed_time.set_thumbnail(
+            url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
+        embed_time.set_image(
+            url="https://i.imgur.com/IO3jvcq.gif")
+
+        await interaction.response.send_message(embed=embed)
+
+        await asyncio.sleep(초)
+
+        await interaction.channel.send(f"> {초}초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed_time)
 
 
 async def setup(bot: commands.Bot) -> None:

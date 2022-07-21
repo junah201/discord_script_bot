@@ -22,7 +22,7 @@ async def 대본목록() -> list:
     return db_list
 
 
-async def 대본생성(types: list, man: int, woman: int):
+async def 대본생성(type: str, man: int, woman: int):
     datas = {}
 
     for file in await 대본목록():
@@ -31,9 +31,8 @@ async def 대본생성(types: list, man: int, woman: int):
         if len(file) == 11 and int(file[0]) <= man and int(file[2]) <= woman and int(file[0]) + int(file[2]) + int(file[4]) == man + woman:
             with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
                 tmp = json.load(json_file)
-                for type in types:
-                    if tmp.get(type):
-                        datas.update(tmp.get(type))
+                if tmp.get(type):
+                    datas.update(tmp.get(type))
 
     global idx
     global max_idx
@@ -81,10 +80,10 @@ async def 대본생성(types: list, man: int, woman: int):
 
     id = datetime.datetime.today().strftime('%c')
 
-    embed = discord.Embed(title=f"📑대본  [{man}남{woman}녀]  {types}", description=대본내용생성(
-        datas, numbers, idx, max_idx), color=0x62c1cc)
-    embed.set_footer(text=f"{1} / {max_idx}   {id}")
-
+    embed = discord.Embed(title=f"《 ឵឵ ឵ ឵ ឵឵📌 {man}남 : {woman}녀 **__{type}__** 대본 ឵ ឵឵ ឵ ឵឵ ឵》", description=대본내용생성(
+        datas, numbers, idx, max_idx), color=0xffff00)
+    embed.set_footer(text=f"< {1} / {max_idx} >   {id}")
+    embed.set_image(url="https://i.imgur.com/xLNYJF0.png")
     global Scripts
 
     Scripts[id] = {
@@ -109,8 +108,9 @@ async def 대본생성(types: list, man: int, woman: int):
 
         new_embed = discord.Embed(title=embed.title, description=대본내용생성(
             datas, numbers, Scripts[id]['idx'], Scripts[id]['max_idx']), color=embed.color)
+        new_embed.set_image(url="https://i.imgur.com/zquKSSB.png")
         new_embed.set_footer(
-            text=f"{Scripts[id]['idx']} / {Scripts[id]['max_idx']}   {id}")
+            text=f"< {Scripts[id]['idx']} / {Scripts[id]['max_idx']} >   {id}")
 
         if Scripts[id]['idx'] == Scripts[id]['max_idx']:
             next_button.disabled = True
@@ -143,8 +143,9 @@ async def 대본생성(types: list, man: int, woman: int):
 
         new_embed = discord.Embed(title=embed.title, description=대본내용생성(
             datas, numbers, Scripts[id]['idx'], Scripts[id]['max_idx']), color=embed.color)
+        new_embed.set_image(url="https://i.imgur.com/zquKSSB.png")
         new_embed.set_footer(
-            text=f"{Scripts[id]['idx']} / {Scripts[id]['max_idx']}   {id}")
+            text=f"< {Scripts[id]['idx']} / {Scripts[id]['max_idx']} >   {id}")
 
         if Scripts[id]['idx'] == Scripts[id]['max_idx']:
             next_button.disabled = True
@@ -191,8 +192,9 @@ async def 대본생성(types: list, man: int, woman: int):
 
         new_embed = discord.Embed(title=embed.title, description=대본내용생성(
             datas, numbers, Scripts[id]['idx'], Scripts[id]['max_idx']), color=embed.color)
+        new_embed.set_image(url="https://i.imgur.com/Nz149PT.png")
         new_embed.set_footer(
-            text=f"{Scripts[id]['idx']} / {Scripts[id]['max_idx']}   {id}")
+            text=f"< {Scripts[id]['idx']} / {Scripts[id]['max_idx']} >   {id}")
 
         if Scripts[id]['idx'] == Scripts[id]['max_idx']:
             next_button.disabled = True
@@ -227,8 +229,9 @@ async def 대본생성(types: list, man: int, woman: int):
 
         new_embed = discord.Embed(title=embed.title, description=대본내용생성(
             datas, numbers, Scripts[id]['idx'], Scripts[id]['max_idx']), color=embed.color)
+        new_embed.set_image(url="https://i.imgur.com/Nz149PT.png")
         new_embed.set_footer(
-            text=f"{Scripts[id]['idx']} / {Scripts[id]['max_idx']}   {id}")
+            text=f"< {Scripts[id]['idx']} / {Scripts[id]['max_idx']} >   {id}")
 
         if Scripts[id]['idx'] == Scripts[id]['max_idx']:
             next_button.disabled = True
@@ -258,17 +261,19 @@ class 대본(commands.Cog):
 
     @app_commands.command(name="모여", description="특정 역할을 가지고 있는 모두를 멘션한 후, 대본 리딩에 필요한 배우를 모집할 수 있습니다.")
     async def 모여(self, interaction: Interaction):
-        embed = discord.Embed(color=0x62c1cc)
+        embed = discord.Embed(color=0xFFFF00)
         embed.title = "💌 캐스팅 시작"
         # .\n[<:cst:840538932906950682> : 참여 <:RED:841252822795550751> : 참여취소 <:can:841253094674399243> : 완료]"
         embed.description = "무대 참여 의사를 확인합니다"
         embed.add_field(name="🍺⠀남배우", value=" 《⠀공 석⠀》")
         embed.add_field(name="💋⠀여배우", value=" 《⠀공 석⠀》")
-        embed.set_image(
-            url="https://media.discordapp.net/attachments/424831572861124619/549533764880171018/da41590cda439e68.gif")
+        # embed.set_image(
+        #     url="https://media.discordapp.net/attachments/424831572861124619/549533764880171018/da41590cda439e68.gif")
         embed.set_author(name=f'{interaction.user.name}',
                          icon_url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
         embed.set_thumbnail(url=str(interaction.user.display_avatar))
+        embed.set_image(
+            url="https://c.tenor.com/mc9-3cypZEYAAAAC/rainbow-line.gif")
 
         view = discord.ui.View(timeout=1200)
 
@@ -288,7 +293,7 @@ class 대본(commands.Cog):
                     man_users = embed.fields[0].value.split('\n')
 
                 if interaction.user.name in man_users:
-                    return await interaction.response.send_message("이미 등록되어있습니다.")
+                    return await interaction.response.send_message("이미 등록되어있습니다.", ephemeral=True)
 
                 man_users.append(interaction.user.name)
 
@@ -301,7 +306,7 @@ class 대본(commands.Cog):
                     woman_users = embed.fields[1].value.split('\n')
 
                 if interaction.user.name in woman_users:
-                    return await interaction.response.send_message("이미 등록되어있습니다.")
+                    return await interaction.response.send_message("이미 등록되어있습니다.", ephemeral=True)
 
                 woman_users.append(interaction.user.name)
 
@@ -378,7 +383,7 @@ class 대본(commands.Cog):
                 await interaction.response.edit_message(embed=embed, view=view)
 
                 ending_embed = discord.Embed(
-                    title="캐스팅 완료", description=f"총 {len(man_users)}남{len(woman_users)}여", color=0x62c1cc)
+                    title="《⠀ 🎉 캐스팅 완료 🎉 ⠀》", description=f"총 {len(man_users)}남{len(woman_users)}여", color=0xff2eb6)
 
                 ending_view = discord.ui.View(timeout=1200)
 
@@ -403,6 +408,8 @@ class 대본(commands.Cog):
                         with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
                             datas.update(json.load(json_file))
 
+                ending_embed.set_image(url="https://i.imgur.com/4M7IWwP.gif")
+
                 selects = discord.ui.Select()
 
                 if not datas.keys():
@@ -412,7 +419,7 @@ class 대본(commands.Cog):
                     selects.add_option(label=type)
 
                 async def select_callback(interaction: interaction) -> None:
-                    script_type = selects.values
+                    script_type = selects.values[0]
                     script_embed, script_view = await 대본생성(script_type, 남, 여)
 
                     await interaction.response.send_message(embed=script_embed, view=script_view)
@@ -460,7 +467,7 @@ class 대본(commands.Cog):
             selects.add_option(label=type)
 
         async def select_callback(interaction: interaction) -> None:
-            script_type = selects.values
+            script_type = selects.values[0]
             script_embed, script_view = await 대본생성(script_type, 남, 여)
 
             await interaction.response.send_message(embed=script_embed, view=script_view)
@@ -480,9 +487,10 @@ class 대본(commands.Cog):
         delete_button.callback = delete_button_callback
 
         embed = discord.Embed(
-            title="대본 선택", description="대본을 선택해주세요.", color=0x62c1cc)
-        embed.set_footer(text=f"{남}남{여}여")
+            title="대본 선택", description="대본을 선택해주세요.", color=0xd6e2ff)
+        embed.set_footer(text=f"[ {남}남 ] | [ {여}여 ]")
         embed.set_author(name=f'{interaction.user.name}')
+        embed.set_image(url="https://i.imgur.com/rLaOoQn.png")
         view = discord.ui.View(timeout=1200)
         view.add_item(selects)
         view.add_item(delete_button)
