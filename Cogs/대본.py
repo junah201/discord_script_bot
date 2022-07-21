@@ -436,7 +436,7 @@ class 대본(commands.Cog):
         ending_button.callback = ending_button_callback
         view.add_item(ending_button)
 
-        await interaction.response.send_message(content=f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&827887094307356673>", embed=embed, view=view)
+        await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
@@ -494,6 +494,7 @@ class 대본(commands.Cog):
         view = discord.ui.View(timeout=1200)
         view.add_item(selects)
         view.add_item(delete_button)
+
         await interaction.response.send_message(embed=embed, view=view)
 
         try:
