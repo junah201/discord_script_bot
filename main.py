@@ -59,7 +59,7 @@ class MyBot(commands.Bot):
             if not is_man:
                 await interaction.user.add_roles(man_role)
             if is_woman:
-                await interaction.user.add_roles(woman_role)
+                await interaction.user.remove_roles(woman_role)
 
             await interaction.response.send_message(
                 "정상적으로 남성 역할이 부여되었습니다.", ephemeral=True)
