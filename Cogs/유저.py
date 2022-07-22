@@ -7,6 +7,7 @@ from discord import Object
 import json
 import os
 import datetime
+import re
 
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
@@ -36,7 +37,7 @@ class 유저(commands.Cog):
                 "warning": 0
             }
 
-        user = await self.bot.fetch_user(유저[3:-1])
+        user = await self.bot.fetch_user(re.sub(r'[^0-9]', '', 유저))
         if users_data.get(str(user.id)) == None:
             users_data[str(user.id)] = {
                 "name": interaction.user.name,
@@ -70,7 +71,7 @@ class 유저(commands.Cog):
 
     @app_commands.command(name="유저정보", description="유저의 상태정보를 열람합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
     async def 유저정보(self, interaction: Interaction, 유저: str):
-        user = await self.bot.fetch_user(유저[3:-1])
+        user = await self.bot.fetch_user(re.sub(r'[^0-9]', '', 유저))
         member = await interaction.guild.fetch_member(user.id)
 
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
@@ -121,11 +122,11 @@ class 유저(commands.Cog):
             print(e)
 
     @app_commands.command(name="유저경고", description="유저를 경고합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
-    async def 유저경고(self, interaction: Interaction, 유저: str):
+    async def 유저경고(self, interaction: discord.Interaction, 유저: str):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             users_data = json.load(json_file)
 
-        user = await self.bot.fetch_user(유저[3:-1])
+        user = await self.bot.fetch_user(re.sub(r'[^0-9]', '', 유저))
 
         if users_data.get(str(user.id)) == None:
             users_data[str(user.id)] = {

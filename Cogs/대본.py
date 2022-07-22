@@ -260,7 +260,11 @@ class 대본(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="모여", description="특정 역할을 가지고 있는 모두를 멘션한 후, 대본 리딩에 필요한 배우를 모집할 수 있습니다.")
-    async def 모여(self, interaction: Interaction):
+    async def 모여(self, interaction: discord.Interaction):
+        if not(interaction.channel.id == config['GATHER_CHANNEL_ID'] or interaction.user.id == config['GATHER_CHANNEL_ID']):
+            await interaction.response.send_message(f"이 명령어는 <#{config['GATHER_CHANNEL_ID']}>에서만 사용할 수 있습니다.")
+            return
+
         embed = discord.Embed(color=0xFFFF00)
         embed.title = "💌 캐스팅 시작"
         # .\n[<:cst:840538932906950682> : 참여 <:RED:841252822795550751> : 참여취소 <:can:841253094674399243> : 완료]"
@@ -418,7 +422,7 @@ class 대본(commands.Cog):
                 for type in datas.keys():
                     selects.add_option(label=type)
 
-                async def select_callback(interaction: interaction) -> None:
+                async def select_callback(interaction: discord.Interaction) -> None:
                     script_type = selects.values[0]
                     script_embed, script_view = await 대본생성(script_type, 남, 여)
 
