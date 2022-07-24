@@ -17,7 +17,7 @@ class 유저(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="유저평가", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 1점을 부여합니다. (유저 칸에는 원하는 유저를 맨션해주세요.) (하루에 1회 사용 가능)")
+    @app_commands.command(name="취향저격", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 하트를 보냅니다. (유저 칸에는 원하는 유저를 맨션해주세요.) (하루에 1회 사용 가능)")
     async def 유저평가(self, interaction: Interaction, 유저: str):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             users_data = json.load(json_file)
@@ -94,12 +94,12 @@ class 유저(commands.Cog):
                         value=f"{users_data[str(user.id)]['warning']}")
         embed.add_field(name="**대본 평가**",
                         value=f"{len(users_data[str(user.id)]['review'].keys())}개의 대본을 평가했습니다.")
-        '''
+
         embed.add_field(name="**계정생성일**",
-                        value=member.created_at.strftime("%Y년 %m월 %d일 %H:%M:%S"))
+                        value=member.created_at.strftime("%Y/%m/%d/%H"))
         embed.add_field(name="**서버입장일**",
-                        value=member.joined_at.strftime("%Y년 %m월 %d일 %H:%M:%S"))
-        '''
+                        value=member.joined_at.strftime("%Y/%m/%d일/%H"))
+
         embed.add_field(name="**서버 직업**", value=member.top_role.mention)
         roles = [role.mention for role in member.roles if not role.is_default()]
         embed.add_field(

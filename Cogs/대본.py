@@ -14,6 +14,12 @@ with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
 Scripts = {}
 
 
+def is_reading_channel(channel_id: int) -> bool:
+    if channel_id in config["READING_CHANNEL_ID"]:
+        return False
+    return True
+
+
 async def 대본목록() -> list:
     db_list = []
     for file in os.listdir("./DB/Script"):
@@ -260,9 +266,9 @@ class 대본(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="모여", description="특정 역할을 가지고 있는 모두를 멘션한 후, 대본 리딩에 필요한 배우를 모집할 수 있습니다.")
-    async def 모여(self, interaction: discord.Interaction):
-        if not(interaction.channel.id == config['GATHER_CHANNEL_ID'] or interaction.user.id == config['GATHER_CHANNEL_ID']):
-            await interaction.response.send_message(f"이 명령어는 <#{config['GATHER_CHANNEL_ID']}>에서만 사용할 수 있습니다.")
+    async def 모여(self, interaction: discord.Interaction, 맨션: str = ""):
+        if is_reading_channel(interaction.channel.category.id):
+            await interaction.response.send_message(f"리딩 채널 밖에선 사용 할 수 없는 명령어 입니다.")
             return
 
         embed = discord.Embed(color=0xFFFF00)
@@ -440,7 +446,10 @@ class 대본(commands.Cog):
         ending_button.callback = ending_button_callback
         view.add_item(ending_button)
 
-        await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
+        if not 맨션:
+            await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
+        else:
+            await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다.", embed=embed, view=view)
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
@@ -453,6 +462,10 @@ class 대본(commands.Cog):
 
     @app_commands.command(name="대본", description="인원을 설정 후 대본 목록을 보여줍니다.")
     async def 대본(self, interaction: Interaction, 남: int, 여: int) -> None:
+        if is_reading_channel(interaction.channel.category.id):
+            await interaction.response.send_message(f"리딩 채널 밖에선 사용 할 수 없는 명령어 입니다.")
+            return
+
         datas = {}
 
         for file in await 대본목록():
@@ -623,7 +636,7 @@ class 대본(commands.Cog):
             print(e)
 
     @app_commands.command(name="대본삭제", description="등록 되어 있는 대본의 ID를 이용해, 선택한 대본을 삭제할 수 있습니다.")
-    async def 대본삭제(self, interaction: Interaction, 대본아이디: str):
+    async def 대본삭제(self, interaction: Interaction, 대본아이디: str, 삭제사유: str):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             script_list = json.load(json_file)
 
@@ -649,20 +662,20 @@ class 대본(commands.Cog):
             json.dump(script_data, json_file, ensure_ascii=False, indent=4)
 
         embed = discord.Embed(
-            title="삭제 완료", description=f"정상적으로 삭제 완료 하였습니다.\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']['name']}\n대본아이디 : {대본아이디}\n추가자 : {tmp['adder']}```")
+            title="삭제 완료", description=f"정상적으로 삭제 완료 하였습니다.\n사유 : {삭제사유}\n\n```대본명 : {tmp['name']}\n대본종류 : {tmp['type']['name']}\n대본아이디 : {대본아이디}\n추가자 : {tmp['adder']}```")
         embed.set_author(name=interaction.user.name)
         await interaction.response.send_message(embed=embed)
 
         try:
             channel = await self.bot.fetch_channel(config['LOG_IMPORTANT_CHANNEL'])
             log_embed = discord.Embed(
-                title="[대본삭제]", description=f"사용자 : `{interaction.user.name} ({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본 : [{tmp['name']}]({tmp['link']}) `{대본아이디}`\n시간 : ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+                title="[대본삭제]", description=f"사용자 : `{interaction.user.name} ({interaction.user.id})`\n\n사유 : {삭제사유}\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대본 : [{tmp['name']}]({tmp['link']}) `{대본아이디}`\n시간 : ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
             await channel.send(embed=log_embed)
         except Exception as e:
             print("[대본삭제] error 발생")
             print(e)
 
-    @app_commands.command(name="대본평가", description="대본에 대한 평가를 등록합니다. (점수는 1에서 5점 사이의 정수로 부여해주세요.)")
+    @app_commands.command(name="대본별점", description="대본에 별점 스티커를 붙입니다. (점수는 1에서 5점 사이의 정수로 부여해주세요.)")
     async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             user_data = json.load(json_file)

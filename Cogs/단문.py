@@ -24,12 +24,21 @@ async def get_member_list(members: list):
     return user_list
 
 
+def is_reading_channel(channel_id: int) -> bool:
+    if channel_id in config["READING_CHANNEL_ID"]:
+        return False
+    return True
+
+
 class 단문(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
     @app_commands.command(name="단문예약", description="예약목록을 만들고, 단문 연기를 시작합니다.")
     async def 단문예약(self, interaction: Interaction):
+        if is_reading_channel(interaction.channel.category.id):
+            await interaction.response.send_message(f"리딩 채널 밖에선 사용 할 수 없는 명령어 입니다.")
+            return
         if short_script.get(str(interaction.channel.id)) == None:
             short_script[str(interaction.channel.id)] = {
                 "channel": interaction.channel,
@@ -63,6 +72,10 @@ class 단문(commands.Cog):
 
     @app_commands.command(name="단문스킵", description="예약목록에서 해당 유저를 스킵합니다. (유저를 선택하지 않을 경우 본인을 스킵합니다.) (유저 칸에는 유저를 맨션해주세요.)")
     async def 단문스킵(self, interaction: Interaction, 유저: str = None):
+        if is_reading_channel(interaction.channel.category.id):
+            await interaction.response.send_message(f"리딩 채널 밖에선 사용 할 수 없는 명령어 입니다.")
+            return
+
         if short_script.get(str(interaction.channel.id)) == None:
             await interaction.response.send_message(f"단문예약이 시작하지 않았습니다. `/단문예약`을 사용해주세요.")
             return
@@ -105,6 +118,10 @@ class 단문(commands.Cog):
 
     @app_commands.command(name="단문다음", description="현재 연기 중인 유저를 스킵하고 다음 유저를 연기합니다.")
     async def 단문다음(self, interaction: Interaction):
+        if is_reading_channel(interaction.channel.category.id):
+            await interaction.response.send_message(f"리딩 채널 밖에선 사용 할 수 없는 명령어 입니다.")
+            return
+
         if short_script.get(str(interaction.channel.id)) == None:
             await interaction.response.send_message(f"단문예약이 시작하지 않았습니다. `/단문예약`을 사용해주세요.")
             return
@@ -130,12 +147,16 @@ class 단문(commands.Cog):
 
     @app_commands.command(name="단문리스트", description="단문 예약 목록을 보여줍니다.")
     async def 단문리스트(self, interaction: Interaction):
+        if is_reading_channel(interaction.channel.category.id):
+            await interaction.response.send_message(f"리딩 채널 밖에선 사용 할 수 없는 명령어 입니다.")
+            return
+
         if short_script.get(str(interaction.channel.id)) == None:
             await interaction.response.send_message(f"단문예약이 시작하지 않았습니다. `/단문예약`을 사용해주세요.")
             return
 
-        time_delta = (datetime.datetime.now() -
-                      short_script[str(interaction.channel.id)]["last_time"]).seconds
+        time_delta = (datetime.datetime.now(
+        ) - short_script[str(interaction.channel.id)]["last_time"]).seconds
 
         embed = discord.Embed(
             title="📑 단문 리스트", description=f"시작시간 : {time_delta // 60}분 {time_delta % 60}초 전", color=0xFFFF00)

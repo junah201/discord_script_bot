@@ -25,6 +25,7 @@ class MyBot(commands.Bot):
             "Cogs.대본",
             "Cogs.유저",
             "Cogs.유틸",
+            "Cogs.단문"
         ]
 
     async def setup_hook(self):
