@@ -1,5 +1,5 @@
 import discord
-from discord import app_commands
+from discord import Guild, Member, app_commands
 from discord.ext import commands
 from discord import Interaction
 from discord import Object
@@ -71,13 +71,13 @@ async def 대본생성(type: str, man: int, woman: int):
                 if datas[key]['rating'] == 0:
                     tmp_msg += f"{num} [{datas[key]['name']}]({datas[key]['link']}) (id : {key}) (미평가)\n"
                 else:
-                    tmp_msg += f"{num} [{datas[key]['name']}]({datas[key]['link']}) (id : {key}) {''.join(['❤️' for i in range(round(datas[key]['rating'] // datas[key]['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (datas[key]['rating'] // datas[key]['rating_users'])))])}\n"
+                    tmp_msg += f"{num} [{datas[key]['name']}]({datas[key]['link']}) (id : {key}) {''.join(['❤️' for i in range(round(datas[key]['rating'] // datas[key]['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (datas[key]['rating'] // datas[key]['rating_users'])))])} ({datas[key]['rating_users']}명)\n"
         else:
             for key, num in zip(list(datas.keys())[10*idx - 10:10*idx], numbers):
                 if datas[key]['rating'] == 0:
                     tmp_msg += f"{num} [{datas[key]['name']}]({datas[key]['link']}) (id : {key}) (미평가)\n"
                 else:
-                    tmp_msg += f"{num} [{datas[key]['name']}]({datas[key]['link']}) (id : {key}) {''.join(['❤️' for i in range(round(datas[key]['rating'] // datas[key]['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (datas[key]['rating'] // datas[key]['rating_users'])))])}\n"
+                    tmp_msg += f"{num} [{datas[key]['name']}]({datas[key]['link']}) (id : {key}) {''.join(['❤️' for i in range(round(datas[key]['rating'] // datas[key]['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (datas[key]['rating'] // datas[key]['rating_users'])))])} ({datas[key]['rating_users']}명)\n"
 
         if tmp_msg == "":
             tmp_msg = "없음"
@@ -261,6 +261,54 @@ async def 대본생성(type: str, man: int, woman: int):
     return embed, view
 
 
+async def 대본평가(interaction: Interaction, 대본아이디: str, 점수: int, origin_embed: discord.Embed):
+    with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
+        user_data = json.load(json_file)
+
+    with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+        script_data = json.load(json_file)
+
+    if str(interaction.user.id) not in user_data.keys():
+        user_data[str(interaction.user.id)] = {
+            "name": interaction.user.name,
+            "grade": 0,
+            "last_evaluate": "미평가",
+            "review": {},
+            "warning": 0
+        }
+
+    with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+        script_list = json.load(json_file)
+
+    if str(대본아이디) not in script_list.keys():
+        return await interaction.channel.send("존재하지 않는 대본입니다.")
+
+    with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+        script_data = json.load(json_file)
+
+    if 대본아이디 in user_data[str(interaction.user.id)]["review"].keys():
+        await interaction.channel.send(f"이미 평가한 대본이므로 평가를 수정하였습니다.\n({user_data[str(interaction.user.id)]['review'][대본아이디]}점 -> {점수}점)")
+        script_data[script_list[대본아이디]["type"]
+                    ][대본아이디]["rating"] -= user_data[str(interaction.user.id)]['review'][대본아이디]
+        script_data[script_list[대본아이디]["type"]][대본아이디]["rating"] += 점수
+        user_data[str(interaction.user.id)]['review'][대본아이디] = 점수
+    else:
+        script_data[script_list[대본아이디]["type"]][대본아이디]["rating"] += 점수
+        script_data[script_list[대본아이디]["type"]][대본아이디]["rating_users"] += 1
+        user_data[str(interaction.user.id)]['review'][대본아이디] = 점수
+        await interaction.channel.send(f"{점수}점으로 평가하였습니다.")
+
+    rating = script_data[script_list[대본아이디]["type"]][대본아이디]["rating"]
+    rating_user = script_data[script_list[대본아이디]
+                              ["type"]][대본아이디]["rating_users"]
+
+    with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
+        json.dump(user_data, json_file, ensure_ascii=False, indent=4)
+
+    with open(f"./DB/Script/{script_list[str(대본아이디)]['gender']}.json", "w", encoding="utf-8-sig") as json_file:
+        json.dump(script_data, json_file, ensure_ascii=False, indent=4)
+
+
 class 대본(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -309,6 +357,9 @@ class 대본(commands.Cog):
 
                 embed.set_field_at(
                     0, name=f"🍺⠀남배우 {len(man_users)}분", value='\n'.join(man_users))
+
+                await interaction.channel.send(f"<:cst:840538932906950682> | {open_actor}님이 개설하신 무대에 {interaction.user.mention}님이 캐스팅 되었습니다. [🍺 현재 남성 배우 : {len(man_users)}명]")
+
             elif is_woman:
                 if embed.fields[1].value == " 《⠀공 석⠀》":
                     woman_users = []
@@ -323,7 +374,9 @@ class 대본(commands.Cog):
                 embed.set_field_at(
                     1, name=f"💋⠀여배우 {len(woman_users)}분", value='\n'.join(woman_users))
 
-            await interaction.channel.send(f"{interaction.user.mention}님이 참여하셨습니다")
+                await interaction.channel.send(f"<:cst:840538932906950682> | {open_actor}님이 개설하신 무대에 {interaction.user.mention}님이 캐스팅 되었습니다. [💋 현재 여성 배우 : {len(woman_users)}명]")
+
+            # await interaction.channel.send(f"{interaction.user.mention}님이 참여하셨습니다")
             await interaction.response.edit_message(embed=embed, view=view)
 
         join_button.callback = join_button_callback
@@ -447,6 +500,7 @@ class 대본(commands.Cog):
         view.add_item(ending_button)
 
         if not 맨션:
+            open_actor = f"{interaction.user.mention}"
             await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
         else:
             await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다.", embed=embed, view=view)
@@ -674,9 +728,9 @@ class 대본(commands.Cog):
         except Exception as e:
             print("[대본삭제] error 발생")
             print(e)
-
-    @app_commands.command(name="대본별점", description="대본에 별점 스티커를 붙입니다. (점수는 1에서 5점 사이의 정수로 부여해주세요.)")
-    async def 대본평가(self, interaction: Interaction, 대본아이디: str, 점수: int):
+    '''
+    @app_commands.command(name="대본하트", description="대본에 하트 별점을 붙여 줍니다. (점수는 1에서 5점 사이의 정수로 부여해주세요.)")
+    async def 대본하트(self, interaction: Interaction, 대본아이디: str, 점수: int):
         with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
             user_data = json.load(json_file)
 
@@ -729,6 +783,103 @@ class 대본(commands.Cog):
         except Exception as e:
             print("[대본평가] error 발생")
             print(e)
+    '''
+
+    @app_commands.command(name="대본하트", description="대본에 하트 별점을 붙여 줍니다.")
+    async def 대본하트(self, interaction: discord.Interaction, 대본아이디: str):
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_list = json.load(json_file)
+
+        if str(대본아이디) not in script_list.keys():
+            return await interaction.response.send_message("존재하지 않는 대본입니다.", ephemeral=True)
+
+        heart_embed = discord.Embed(title="대본 평가하기")
+        heart_embed.add_field(
+            name="제목", value=f"[{script_list[대본아이디]['name']}]({script_list[대본아이디]['link']})")
+        heart_embed.add_field(
+            name="성비", value=f"{script_list[대본아이디]['gender']}")
+
+        with open(f"./DB/Script/{script_list[대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+            script_data = json.load(json_file)
+
+        data = script_data[script_list[대본아이디]['type']][대본아이디]
+
+        if data['rating'] == 0:
+            heart_embed.add_field(
+                name="하트", value=f"미평가 (0명)")
+        else:
+            heart_embed.add_field(
+                name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
+
+        heart_view = discord.ui.View(timeout=1200)
+
+        one_button = discord.ui.Button(label="1점")
+
+        async def one_button_callback(interaction: discord.Interaction):
+            await 대본평가(interaction, 대본아이디, 1, heart_embed)
+            with open(f"./DB/Script/{script_list[대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+                script_data = json.load(json_file)
+                data = script_data[script_list[대본아이디]['type']][대본아이디]
+            heart_embed.set_field_at(
+                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
+            await interaction.response.edit_message(embed=heart_embed)
+        one_button.callback = one_button_callback
+
+        two_button = discord.ui.Button(label="2점")
+
+        async def two_button_callback(interaction: discord.Interaction):
+            await 대본평가(interaction, 대본아이디, 2, heart_embed)
+            with open(f"./DB/Script/{script_list[대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+                script_data = json.load(json_file)
+                data = script_data[script_list[대본아이디]['type']][대본아이디]
+            heart_embed.set_field_at(
+                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
+            await interaction.response.edit_message(embed=heart_embed)
+        two_button.callback = two_button_callback
+
+        three_button = discord.ui.Button(label="3점")
+
+        async def three_button_callback(interaction: discord.Interaction):
+            await 대본평가(interaction, 대본아이디, 3, heart_embed)
+            with open(f"./DB/Script/{script_list[대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+                script_data = json.load(json_file)
+                data = script_data[script_list[대본아이디]['type']][대본아이디]
+            heart_embed.set_field_at(
+                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
+            await interaction.response.edit_message(embed=heart_embed)
+        three_button.callback = three_button_callback
+
+        four_button = discord.ui.Button(label="4점")
+
+        async def four_button_callback(interaction: discord.Interaction):
+            await 대본평가(interaction, 대본아이디, 4, heart_embed)
+            with open(f"./DB/Script/{script_list[대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+                script_data = json.load(json_file)
+                data = script_data[script_list[대본아이디]['type']][대본아이디]
+            heart_embed.set_field_at(
+                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
+            await interaction.response.edit_message(embed=heart_embed)
+        four_button.callback = four_button_callback
+
+        five_button = discord.ui.Button(label="5점")
+
+        async def five_button_callback(interaction: discord.Interaction):
+            await 대본평가(interaction, 대본아이디, 5, heart_embed)
+            with open(f"./DB/Script/{script_list[대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+                script_data = json.load(json_file)
+                data = script_data[script_list[대본아이디]['type']][대본아이디]
+            heart_embed.set_field_at(
+                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
+            await interaction.response.edit_message(embed=heart_embed)
+        five_button.callback = five_button_callback
+
+        heart_view.add_item(one_button)
+        heart_view.add_item(two_button)
+        heart_view.add_item(three_button)
+        heart_view.add_item(four_button)
+        heart_view.add_item(five_button)
+
+        await interaction.response.send_message(embed=heart_embed, view=heart_view)
 
     @app_commands.command(name="대본검색", description="등록 되어 있는 대본을 제목 또는 링크를 통해 찾아 볼 수 있습니다.")
     async def 대본검색(self, interaction: Interaction, 검색: str):

@@ -35,7 +35,7 @@ class MyBot(commands.Bot):
         await bot.tree.sync(guild=discord.Object(id=827801772143017994))
 
     async def on_ready(self):
-        # 역할 채널 세팅
+        # 기본 역할 채널 세팅
         role_channel = discord.utils.get(
             bot.get_all_channels(), id=config["ROLE_CHANNEL_ID"])
 
@@ -45,7 +45,7 @@ class MyBot(commands.Bot):
             title="환영합니다. REC 서버입니다.", description="📌 ┃ 세 가지 중요한 설문에 참여 하시면 각 설문마다 해당 역할이 추가됩니다.\n\n📛 ┃설문에 응하지 않으시면 서버를 이용하실 수 없습니다.", color=0xffee40)
         await role_channel.send(embed=role_init_embed)
 
-        # 역할 채널 세팅 - 성별
+        # 기본 역할 채널 세팅 - 성별
         gender_embed = discord.Embed(
             title=":red_circle: 성별이 어떻게 되시나요?", color=0xffee40)
         gender_view = discord.ui.View(timeout=None)
@@ -94,7 +94,7 @@ class MyBot(commands.Bot):
 
         await role_channel.send(embed=gender_embed, view=gender_view)
 
-        # 역할 채널 세팅 - 활동
+        # 기본 역할 채널 세팅 - 활동
 
         activeity_embed = discord.Embed(
             title=":red_circle:  어떤 활동을 원하시나요?", color=0xffee40)
@@ -175,7 +175,7 @@ class MyBot(commands.Bot):
 
         await role_channel.send(embed=activeity_embed, view=activeity_view)
 
-        # 역할 채널 세팅 - 장르
+        # 기본 역할 채널 세팅 - 장르
 
         preference_embed = discord.Embed(
             title=":red_circle:  어떤 장르를 선호하시나요?", color=0xffee40)
@@ -267,7 +267,7 @@ class MyBot(commands.Bot):
 
         await role_channel.send(embed=preference_embed, view=preference_view)
 
-        # 역할 채널 세팅 - 대배우
+        # 기본 역할 채널 세팅 - 대배우
 
         grant_actor_embed = discord.Embed(
             description="❤️ 설문에 응해주셔서 감사드립니다.\n 아래 완료 버튼을 누르시면 서버로 입장됩니다.", color=0xff80bf)
