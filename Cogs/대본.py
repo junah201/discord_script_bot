@@ -1,3 +1,4 @@
+from asyncio import constants
 import discord
 from discord import Guild, Member, app_commands
 from discord.ext import commands
@@ -12,6 +13,193 @@ with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
 Scripts = {}
+
+
+class gether_view(discord.ui.View):
+    @discord.ui.button(label='모여')
+    async def gather_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(color=0xFFFF00)
+        embed.title = "💌 캐스팅 시작"
+        # .\n[<:cst:840538932906950682> : 참여 <:RED:841252822795550751> : 참여취소 <:can:841253094674399243> : 완료]"
+        embed.description = "무대 참여 의사를 확인합니다"
+        embed.add_field(name="🍺⠀남배우", value=" 《⠀공 석⠀》")
+        embed.add_field(name="💋⠀여배우", value=" 《⠀공 석⠀》")
+        # embed.set_image(
+        #     url="https://media.discordapp.net/attachments/424831572861124619/549533764880171018/da41590cda439e68.gif")
+        embed.set_author(name=f'{interaction.user.name}',
+                         icon_url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
+        embed.set_thumbnail(url=str(interaction.user.display_avatar))
+        embed.set_image(
+            url="https://c.tenor.com/mc9-3cypZEYAAAAC/rainbow-line.gif")
+
+        view = discord.ui.View(timeout=1200)
+
+        join_button = discord.ui.Button(label="참여",
+                                        emoji="<:cst:840538932906950682>", style=discord.ButtonStyle.green)
+
+        async def join_button_callback(interaction: discord.Interaction):
+            is_man = "《 ឵ ឵឵ ឵ ឵឵ ឵남성 배우 ឵ ឵឵ ឵ ឵឵ ឵》" in [
+                x.name for x in interaction.user.roles]
+            is_woman = "《 ឵ ឵឵ ឵ ឵឵ ឵여성 배우 ឵ ឵឵ ឵ ឵឵ ឵》" in [
+                x.name for x in interaction.user.roles]
+
+            if is_man:
+                if embed.fields[0].value == " 《⠀공 석⠀》":
+                    man_users = []
+                else:
+                    man_users = embed.fields[0].value.split('\n')
+
+                if interaction.user.name in man_users:
+                    return await interaction.response.send_message("이미 등록되어있습니다.", ephemeral=True)
+
+                man_users.append(interaction.user.name)
+
+                embed.set_field_at(
+                    0, name=f"🍺⠀남배우 {len(man_users)}분", value='\n'.join(man_users))
+
+                await interaction.channel.send(f"<:cst:840538932906950682> | {open_actor}님이 개설하신 무대에 {interaction.user.mention}님이 캐스팅 되었습니다. [🍺 현재 남성 배우 : {len(man_users)}명]")
+
+            elif is_woman:
+                if embed.fields[1].value == " 《⠀공 석⠀》":
+                    woman_users = []
+                else:
+                    woman_users = embed.fields[1].value.split('\n')
+
+                if interaction.user.name in woman_users:
+                    return await interaction.response.send_message("이미 등록되어있습니다.", ephemeral=True)
+
+                woman_users.append(interaction.user.name)
+
+                embed.set_field_at(
+                    1, name=f"💋⠀여배우 {len(woman_users)}분", value='\n'.join(woman_users))
+
+                await interaction.channel.send(f"<:cst:840538932906950682> | {open_actor}님이 개설하신 무대에 {interaction.user.mention}님이 캐스팅 되었습니다. [💋 현재 여성 배우 : {len(woman_users)}명]")
+
+            # await interaction.channel.send(f"{interaction.user.mention}님이 참여하셨습니다")
+            await interaction.response.edit_message(embed=embed, view=view)
+
+        join_button.callback = join_button_callback
+        view.add_item(join_button)
+
+        cancel_button = discord.ui.Button(label="취소",
+                                          emoji="<:RED:841252822795550751>", style=discord.ButtonStyle.danger)
+
+        async def cancel_button_callback(interaction: discord.Interaction):
+            is_man = "《 ឵ ឵឵ ឵ ឵឵ ឵남성 배우 ឵ ឵឵ ឵ ឵឵ ឵》" in [
+                x.name for x in interaction.user.roles]
+            is_woman = "《 ឵ ឵឵ ឵ ឵឵ ឵여성 배우 ឵ ឵឵ ឵ ឵឵ ឵》" in [
+                x.name for x in interaction.user.roles]
+
+            if is_man:
+                if embed.fields[0].value == " 《⠀공 석⠀》":
+                    man_users = []
+                else:
+                    man_users = embed.fields[0].value.split('\n')
+                if interaction.user.name in man_users:
+                    man_users.remove(interaction.user.name)
+                    if not man_users:
+                        embed.set_field_at(0, name=f"🍺⠀남배우", value=" 《⠀공 석⠀》")
+                    else:
+                        embed.set_field_at(
+                            0, name=f"🍺⠀남배우 {len(man_users)}분", value='\n'.join(man_users))
+
+                    await interaction.channel.send(content=f"<:RED:841252822795550751> - < {interaction.user.mention} > 님께서 사정이 생기셨습니다.")
+            elif is_woman:
+                if embed.fields[1].value == " 《⠀공 석⠀》":
+                    woman_users = []
+                else:
+                    woman_users = embed.fields[1].value.split('\n')
+                if interaction.user.name in woman_users:
+                    woman_users.remove(interaction.user.name)
+                    if not woman_users:
+                        embed.set_field_at(1, name=f"💋⠀여배우", value=" 《⠀공 석⠀》")
+                    else:
+                        embed.set_field_at(
+                            1, name=f"💋⠀여배우 {len(woman_users)}분", value='\n'.join(woman_users))
+                    await interaction.channel.send(content=f"<:RED:841252822795550751> - < {interaction.user.mention} > 님께서 사정이 생기셨습니다.")
+
+            await interaction.response.edit_message(embed=embed, view=view)
+
+        cancel_button.callback = cancel_button_callback
+        view.add_item(cancel_button)
+
+        ending_button = discord.ui.Button(label="완료",
+                                          emoji="<:can:841253094674399243>", style=discord.ButtonStyle.primary)
+
+        async def ending_button_callback(interaction: discord.Interaction):
+            if interaction.user.name == embed.author.name:
+                if embed.fields[0].value == " 《⠀공 석⠀》":
+                    man_users = []
+                else:
+                    man_users = embed.fields[0].value.split('\n')
+
+                if embed.fields[1].value == " 《⠀공 석⠀》":
+                    woman_users = []
+                else:
+                    woman_users = embed.fields[1].value.split('\n')
+
+                join_button.disabled = True
+                cancel_button.disabled = True
+                ending_button.disabled = True
+
+                await interaction.response.edit_message(embed=embed, view=view)
+
+                ending_embed = discord.Embed(
+                    title="《⠀ 🎉 캐스팅 완료 🎉 ⠀》", description=f"총 {len(man_users)}남{len(woman_users)}여", color=0xff2eb6)
+
+                ending_view = discord.ui.View(timeout=1200)
+
+                tmp = '\n'.join(man_users)
+                if tmp == "":
+                    tmp = " 《⠀공 석⠀》"
+                ending_embed.add_field(name="🍺 남배우", value=f"{tmp} ")
+
+                tmp = '\n'.join(woman_users)
+                if tmp == "":
+                    tmp = " 《⠀공 석⠀》"
+                ending_embed.add_field(name="💋 여배우", value=f"{tmp} ")
+
+                datas = {}
+                남 = len(man_users)
+                여 = len(woman_users)
+
+                for file in await 대본목록():
+                    if file == "Script.json":
+                        continue
+                    if len(file) == 11 and int(file[0]) <= 남 and int(file[2]) <= 여 and int(file[0]) + int(file[2]) + int(file[4]) == 남 + 여:
+                        with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
+                            datas.update(json.load(json_file))
+
+                ending_embed.set_image(url="https://i.imgur.com/4M7IWwP.gif")
+
+                selects = discord.ui.Select()
+
+                if not datas.keys():
+                    selects.add_option(label="해당 인원의 대본이 없음")
+
+                for type in datas.keys():
+                    selects.add_option(label=type)
+
+                async def select_callback(interaction: discord.Interaction) -> None:
+                    script_type = selects.values[0]
+                    script_embed, script_view = await 대본생성(script_type, 남, 여)
+
+                    await interaction.response.send_message(embed=script_embed, view=script_view)
+
+                selects.callback = select_callback
+
+                ending_view = discord.ui.View(timeout=1200)
+                ending_view.add_item(selects)
+
+                await interaction.channel.send(embed=ending_embed, view=ending_view)
+            else:
+                await interaction.response.send_message(f"마무리 버튼은 개설자인 {embed.author.name} 님만 사용할 수 있습니다.", ephemeral=True)
+
+        ending_button.callback = ending_button_callback
+        view.add_item(ending_button)
+
+        open_actor = f"{interaction.user.mention}"
+        await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
 
 
 def is_reading_channel(channel_id: int) -> bool:

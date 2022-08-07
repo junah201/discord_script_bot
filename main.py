@@ -1,16 +1,22 @@
+from tkinter import E
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 import os
 import json
 import sys
 import datetime
 
+from Cogs.대본 import gether_view
+
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
 with open(f"color.json", "r", encoding="utf-8-sig") as json_file:
     color = json.load(json_file)
+
+Channels = {}
+Gather_message = None
 
 
 class MyBot(commands.Bot):
@@ -25,7 +31,8 @@ class MyBot(commands.Bot):
             "Cogs.대본",
             "Cogs.유저",
             "Cogs.유틸",
-            "Cogs.단문"
+            "Cogs.단문",
+            "Cogs.채널"
         ]
 
     async def setup_hook(self):
@@ -291,6 +298,24 @@ class MyBot(commands.Bot):
 
         await role_channel.send(embed=grant_actor_embed, view=grant_actor_view)
 
+        # 추가 역할 채널 세팅
+        '''
+        additional_role_embed = discord.Embed(title="역할샵")
+        additional_role_embed.add_field(
+            name="<@&827887094307356673>", value="/모여 명령어 사용 시 맨션으로 리딩이 모집되고 있음을 알리는 역할")
+        additional_role_embed.add_field("")
+        '''
+
+        # 모여 채널 세팅
+
+        # gather_channel = discord.utils.get(
+        #     bot.get_all_channels(), id=config["GATHER_CHANNEL_ID"])
+
+        # gather_dashboard_embed = discord.Embed(title="모여 대시보드")
+        # gather_dashboard_view = gether_view()
+
+        # await gather_channel.send(embed=gather_dashboard_embed, view=gather_dashboard_view)
+
         print("=========================")
         print(f"대본 봇 Login 완료")
         print(f"bot name : {self.user.name}")
@@ -298,6 +323,24 @@ class MyBot(commands.Bot):
         print(f"discord.py version : {discord.__version__}")
         print("=========================")
         await self.change_presence(status=discord.Status.online, activity=discord.Game("REC에서 대본 리딩"))
+
+        self.setting_gether_dashboard.start()
+
+    @tasks.loop(seconds=120)
+    async def setting_gether_dashboard(self):
+        print(123)
+        global Gather_message
+        try:
+            await Gather_message.delete()
+        except Exception as e:
+            print(e)
+
+        gather_channel = discord.utils.get(
+            bot.get_all_channels(), id=config["GATHER_CHANNEL_ID"])
+        gather_dashboard_embed = discord.Embed(title="모여 대시보드")
+        gather_dashboard_view = gether_view(timeout=120)
+
+        Gather_message = await gather_channel.send(embed=gather_dashboard_embed, view=gather_dashboard_view)
 
 
 bot = MyBot()
