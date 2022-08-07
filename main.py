@@ -337,9 +337,11 @@ class MyBot(commands.Bot):
 
         gather_channel = discord.utils.get(
             bot.get_all_channels(), id=config["GATHER_CHANNEL_ID"])
-        gather_dashboard_embed = discord.Embed(title="모여 대시보드")
+        gather_dashboard_embed = discord.Embed(description="아래 버튼을 이용해 배우를 모집할 수 있습니다. " ,color=0xffff00)
         gather_dashboard_view = gether_view(timeout=120)
-
+        gather_dashboard_embed.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
+        gather_dashboard_embed.set_image(url = "https://i.imgur.com/kuy5ynB.gif")
+        gather_dashboard_embed.set_author(name=f"REC 배우 모집 기능 '모여 대시보드'", icon_url="https://i.imgur.com/JGSMPZ4.png")
         Gather_message = await gather_channel.send(embed=gather_dashboard_embed, view=gather_dashboard_view)
 
 
