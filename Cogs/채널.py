@@ -199,6 +199,7 @@ class 이름변경모달(discord.ui.Modal, title='이름변경'):
         voice_state = None if not interaction.user.voice else interaction.user.voice.channel
         if voice_state:
             await interaction.user.voice.channel.edit(name=변경이름)
+            await interaction.channel.edit(name=변경이름)
             await interaction.response.send_message(f"음성채널의 이름이 ``{변경이름}``으로 이름이 변경 되었습니다.")
         else:
             await interaction.response.send_message("음성 채널에 들어가 있지 않습니다.")
@@ -255,7 +256,6 @@ class 채널(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         global Channels
-        #print(config)
         channel_id = config["GENERATOR_CHANNEL_ID"]
         category_id = config["GENERATOR_CATEGORY_ID"]
         if after.channel != None and after.channel.id == channel_id:
@@ -641,35 +641,32 @@ class 채널(commands.Cog):
             embed_si = discord.Embed(
                 title="《 ឵ ឵឵ ឵ ឵឵음성채널 권한 부여 ឵ ឵឵ ឵ ឵឵ ឵》", description=f"{member.mention} 님이 사용한 음성채널 권한 ឵ ឵឵ ឵ ឵឵ ឵\n>>> 채널 관리 : ``채널명``, ``비트레이트``, ``인원``\n인원 관리 : ``사용자 음소거``, ``사용자 추방``, ``사용자 연결 끊기``", color=0xffff00)
             embed_si.set_author(name=f"REC 음성채널 권한 안내'",
-                             icon_url="https://i.imgur.com/JGSMPZ4.png")
+                                icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed_si.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
             await member.send(embed=embed_si)
             await member.send(f"😸 소유하신 채팅 채널로 바로가기 -> <#{text_channel.id}>")
 
-            Channels[voice_channel.id] = text_channel
+            last_message = await text_channel.send(embed=embed, view=view)
 
-            global redh
+            Channels[voice_channel.id] = {
+                "text_channel": text_channel, "last_message": last_message}
 
             while True:
                 try:
-                    await redh.delete()
+                    await Channels[voice_channel.id]["last_message"].delete()
                 except:
-                    redh = await text_channel.send(embed=embed, view=view)
+                    Channels[voice_channel.id]["last_message"] = await text_channel.send(embed=embed, view=view)
                     await asyncio.sleep(120)
 
-      
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
             await before.channel.delete()
-            #print(Channels[before.channel.id])
-            #print(dir(Channels[before.channel.id].send))
-            await Channels[before.channel.id].delete()
 
         if after.channel != None and after.channel.category.id == category_id:
-            await Channels[after.channel.id].set_permissions(
+            await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
 
         if before.channel != None and before.channel.category.id == category_id:
-            await Channels[before.channel.id].set_permissions(
+            await Channels[before.channel.id]["text_channel"].set_permissions(
                 member, view_channel=False)
 
 
