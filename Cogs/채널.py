@@ -187,6 +187,49 @@ class 대본하트모달(discord.ui.Modal, title='대본하트'):
         await interaction.response.send_message(embed=heart_embed, view=heart_view)
 
 
+class 대본검색모달(discord.ui.Modal, title='대본검색'):
+    대본검색 = discord.ui.TextInput(
+        label='대본검색', style=discord.TextStyle.long)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+                script_list = json.load(json_file)
+
+        self.대본검색 = self.대본검색.value
+
+        검색이름 = str(self.대본검색)
+
+        print(검색이름)
+        result = []
+
+        for key in script_list.keys():
+            if 검색이름 in script_list[key]["name"]:
+                result.append((key, script_list[key]))
+            elif 검색이름 in script_list[key]["link"]:
+                result.append((key, script_list[key]))
+
+        if len(result) == 0:
+            return await interaction.response.send_message("검색 결과가 없습니다.", ephemeral=True)
+
+        embed = discord.Embed(
+            title=f"{검색이름} 검색 결과", description=f"총 {len(result)}개의 결과가 있습니다.\n\n", color=0x62c1cc
+        )
+
+        for key, data in result:
+            embed.add_field(name=f"{data['name']}",
+                            value=f">>> {data['type']}   {data['gender']} ({key})\n{data['link']}", inline=False)
+
+        await interaction.response.send_message(embed=embed)
+
+        try:
+            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+            log_embed = discord.Embed(
+                title="[대본검색]", description=f"사용자 : {interaction.user.name} ({interaction.user.id})\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n키워드 : `{검색이름}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            await channel.send(embed=log_embed)
+        except Exception as e:
+            print("[대본검색] error 발생")
+            print(e)
+
 class 이름변경모달(discord.ui.Modal, title='이름변경'):
     이름 = discord.ui.TextInput(
         label='이름변경', style=discord.TextStyle.long)
@@ -269,8 +312,7 @@ class 채널(commands.Cog):
                     view_channel=False)
             })
 
-            embed = discord.Embed(
-                description="다음과 같은 서비스를 이용하실 수 있습니다.", color=0xFFFF00)
+            embed = discord.Embed(color=0xFFFF00)
             # embed.add_field(
             #     name="모여", value="대배우 역할을 가진 유저들을 맨션하여 리딩을 시작", inline=False)
             # embed.add_field(
@@ -279,9 +321,9 @@ class 채널(commands.Cog):
             #     name="대본하트", value="대본의 ID를 이용해 대본을 평가", inline=False)
             # embed.add_field(
             #     name="뽑기", value="각각의 유저들에게 랜덤한 번호를 부여", inline=False)
-            # embed.set_author(
-            #     name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_image(url="https://i.imgur.com/yLhV9oF.png")
+            embed.set_author(
+                 name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed.set_image(url="https://i.imgur.com/YmBMJUx.png")
             embed.set_footer(text="위 설명을 보시고 아래 버튼을 사용해 주세요")
             view = discord.ui.View(timeout=None)
 
@@ -603,6 +645,88 @@ class 채널(commands.Cog):
                         f"인원설정은 개설자인 {member.name} 님만 할 수 있습니다.", ephemeral=True)
             set_limit_button.callback = set_limit_button_callback
 
+            Script_search_button = discord.ui.Button(
+                emoji="<:SEARCH:1006616384899399761>")
+
+            async def Script_search_button_callback(interaction: discord.Interaction):
+                await interaction.response.send_modal(대본검색모달())
+                    
+            Script_search_button.callback = Script_search_button_callback
+
+            ###################취향저격
+            voice_user_list_button = discord.ui.Button(
+                emoji="<:likevoice:1006617022089678848>")
+
+            async def voice_user_list_button_callback(interaction: discord.Interaction):
+                users_view = discord.ui.View()
+                users_selects = discord.ui.Select()
+
+                members = interaction.user.voice.channel.members
+                for idx in range(len(members)):
+                    users_selects.add_option(label=f"{idx + 1}. {members[idx]}")
+
+                async def select_callback(interaction: discord.Interaction) -> None:
+                    user = members[int(users_selects.values[0][0]) -1]
+                    with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
+                        users_data = json.load(json_file)
+
+                    if users_data.get(str(interaction.user.id)) != None:
+                        if users_data[str(interaction.user.id)]['last_evaluate'] == datetime.datetime.now().strftime("%Y-%m-%d"):
+                            await interaction.response.send_message(f"{interaction.user.mention} 오늘은 이미 평가하셨습니다.", ephemeral=True)
+                            return
+                        users_data[str(interaction.user.id)]["last_evaluate"] = datetime.datetime.now(
+                        ).strftime("%Y-%m-%d")
+                    else:
+                        users_data[str(interaction.user.id)] = {
+                            "name": interaction.user.name,
+                            "grade": 0,
+                            "last_evaluate": datetime.datetime.now().strftime("%Y-%m-%d"),
+                            "review": {},
+                            "warning": 0
+                        }
+
+                    
+                    if users_data.get(str(user.id)) == None:
+                        users_data[str(user.id)] = {
+                            "name": interaction.user.name,
+                            "grade": 0,
+                            "last_evaluate": "미평가",
+                            "review": {},
+                            "warning": 0
+                        }
+
+                    users_data[str(user.id)]['grade'] += 1
+
+                    with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
+                        json.dump(users_data, json_file, indent=4)
+
+                    await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
+
+                    if users_data[str(user.id)]['grade'] in [1, 10, 50, 100]:
+                        member = await interaction.guild.fetch_member(user.id)
+                        role = interaction.guild.get_role(
+                            config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
+                        await member.add_roles(role)
+
+                    try:
+                        channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+                        log_embed = discord.Embed(
+                            title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+                        await channel.send(embed=log_embed)
+                    except Exception as e:
+                        print("[유저평가] error 발생")
+                        print(e)
+
+                    print(users_selects.values[0])
+
+                users_selects.callback = select_callback
+
+                users_view.add_item(users_selects)
+
+                await interaction.response.send_message("💌 좋은 연기를 들려 주신분께 하트를 보내주세요. (하루에 ``1``회)", view = users_view, ephemeral=True)
+            
+            voice_user_list_button.callback = voice_user_list_button_callback
+
             google_button = discord.ui.Button(
                 emoji="<:google:1006104727743889438>", url="https://www.google.com/")
             naver_button = discord.ui.Button(
@@ -612,8 +736,15 @@ class 채널(commands.Cog):
 
             start_SC_button = discord.ui.Button(
                 emoji='<:START:1006113303816314951>')
+
+            async def start_SC_button_callback(interaction : discord.Interaction):
+                await interaction.response.send_message("아직 개발 중인 기능입니다. 기대해주세요 !!", ephemeral=True)
+
             end_SC_button = discord.ui.Button(
                 emoji='<:END:1006113302453157908>')
+
+            start_SC_button.callback = start_SC_button_callback
+            end_SC_button.callback = start_SC_button_callback
 
             view.add_item(gather_button)
             view.add_item(script_button)
@@ -629,12 +760,15 @@ class 채널(commands.Cog):
 
             view.add_item(set_limit_button)
             view.add_item(rename_button)
-            view.add_item(start_SC_button)
-            view.add_item(end_SC_button)
+            view.add_item(voice_user_list_button)
+            view.add_item(Script_search_button)
             view.add_item(youtube_button)
 
+            view.add_item(start_SC_button)
+            view.add_item(end_SC_button)
             # view.add_item(increase_limit_button)
             # view.add_item(decrease_limit_button)
+
 
             await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}>")
 
@@ -656,7 +790,7 @@ class 채널(commands.Cog):
                     await Channels[voice_channel.id]["last_message"].delete()
                 except:
                     Channels[voice_channel.id]["last_message"] = await text_channel.send(embed=embed, view=view)
-                    await asyncio.sleep(120)
+                    await asyncio.sleep(60)
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
             await before.channel.delete()
