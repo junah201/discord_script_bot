@@ -1,4 +1,6 @@
+from ast import Await, Delete
 from cgi import print_directory
+from email import message
 from multiprocessing import Manager, managers
 from tkinter.font import names
 from tokenize import Name
@@ -17,6 +19,8 @@ import random
 from Cogs.대본 import 대본목록, 대본생성, 대본평가, gether_view
 
 Channels = {}
+
+redh = {}
 
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
@@ -251,6 +255,7 @@ class 채널(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         global Channels
+        #print(config)
         channel_id = config["GENERATOR_CHANNEL_ID"]
         category_id = config["GENERATOR_CATEGORY_ID"]
         if after.channel != None and after.channel.id == channel_id:
@@ -632,27 +637,40 @@ class 채널(commands.Cog):
             # view.add_item(decrease_limit_button)
 
             await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}>")
-            await text_channel.send(embed=embed, view=view)
 
-            print(dir(member))
-            embed = discord.Embed(
+            embed_si = discord.Embed(
                 title="《 ឵ ឵឵ ឵ ឵឵음성채널 권한 부여 ឵ ឵឵ ឵ ឵឵ ឵》", description=f"{member.mention} 님이 사용한 음성채널 권한 ឵ ឵឵ ឵ ឵឵ ឵\n>>> 채널 관리 : ``채널명``, ``비트레이트``, ``인원``\n인원 관리 : ``사용자 음소거``, ``사용자 추방``, ``사용자 연결 끊기``", color=0xffff00)
-            embed.set_author(name=f"REC 음성채널 권한 안내'",
+            embed_si.set_author(name=f"REC 음성채널 권한 안내'",
                              icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
-            await member.send(embed=embed)
+            embed_si.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
+            await member.send(embed=embed_si)
             await member.send(f"😸 소유하신 채팅 채널로 바로가기 -> <#{text_channel.id}>")
+
             Channels[voice_channel.id] = text_channel
 
+            global redh
+
+            while True:
+                try:
+                    await redh.delete()
+                except:
+                    redh = await text_channel.send(embed=embed, view=view)
+                    await asyncio.sleep(120)
+
+      
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
             await before.channel.delete()
-            print(Channels[before.channel.id])
-            print(dir(Channels[before.channel.id].send))
+            #print(Channels[before.channel.id])
+            #print(dir(Channels[before.channel.id].send))
             await Channels[before.channel.id].delete()
 
         if after.channel != None and after.channel.category.id == category_id:
             await Channels[after.channel.id].set_permissions(
                 member, view_channel=True)
+
+        if before.channel != None and before.channel.category.id == category_id:
+            await Channels[before.channel.id].set_permissions(
+                member, view_channel=False)
 
 
 async def setup(bot: commands.Bot) -> None:
