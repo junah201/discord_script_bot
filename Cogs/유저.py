@@ -12,6 +12,63 @@ import re
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
+async def 유저평가추가(유저 : discord.Member, interaction : discord.Interaction, self):
+    if 유저.id == interaction.user.id:
+        # ↓↓↓ 연가람이 메시지 적음
+        await interaction.response.send_message(f"{interaction.user.mention} 님 ^^ 자기 자신을 추천할 수는 없는거랍니다 ㅎㅎ", ephemeral=False)
+        return
+
+    with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
+            users_data = json.load(json_file)
+
+    if users_data.get(str(interaction.user.id)) != None:
+        if users_data[str(interaction.user.id)]['last_evaluate'] == datetime.datetime.now().strftime("%Y-%m-%d"):
+            await interaction.response.send_message(f"{interaction.user.mention} 오늘은 이미 평가하셨습니다.", ephemeral=True)
+            return
+        users_data[str(interaction.user.id)]["last_evaluate"] = datetime.datetime.now(
+        ).strftime("%Y-%m-%d")
+    else:
+        users_data[str(interaction.user.id)] = {
+            "name": interaction.user.name,
+            "grade": 0,
+            "last_evaluate": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "review": {},
+            "warning": 0
+        }
+
+    user = 유저
+    if users_data.get(str(user.id)) == None:
+        users_data[str(user.id)] = {
+            "name": interaction.user.name,
+            "grade": 0,
+            "last_evaluate": "미평가",
+            "review": {},
+            "warning": 0
+        }
+
+    users_data[str(user.id)]['grade'] += 1
+
+    with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
+        json.dump(users_data, json_file, indent=4)
+
+    await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
+
+    await user.send(f"알 수 없는 누군가가 당신을 추천했습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)")
+
+    if users_data[str(user.id)]['grade'] in [1, 10, 50, 100]:
+        member = await interaction.guild.fetch_member(user.id)
+        role = interaction.guild.get_role(
+            config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
+        await member.add_roles(role)
+
+    try:
+        channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+        log_embed = discord.Embed(
+            title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+        await channel.send(embed=log_embed)
+    except Exception as e:
+        print("[유저평가] error 발생")
+        print(e)
 
 class 유저(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -19,55 +76,9 @@ class 유저(commands.Cog):
 
     @app_commands.command(name="취향저격", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 하트를 보냅니다. (유저 칸에는 원하는 유저를 맨션해주세요.) (하루에 1회 사용 가능)")
     async def 취향저격(self, interaction: Interaction, 유저: discord.Member):
-        with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
-            users_data = json.load(json_file)
+        await 유저평가추가(유저, interaction, self)
 
-        if users_data.get(str(interaction.user.id)) != None:
-            if users_data[str(interaction.user.id)]['last_evaluate'] == datetime.datetime.now().strftime("%Y-%m-%d"):
-                await interaction.response.send_message(f"{interaction.user.mention} 오늘은 이미 평가하셨습니다.", ephemeral=True)
-                return
-            users_data[str(interaction.user.id)]["last_evaluate"] = datetime.datetime.now(
-            ).strftime("%Y-%m-%d")
-        else:
-            users_data[str(interaction.user.id)] = {
-                "name": interaction.user.name,
-                "grade": 0,
-                "last_evaluate": datetime.datetime.now().strftime("%Y-%m-%d"),
-                "review": {},
-                "warning": 0
-            }
-
-        user = 유저
-        if users_data.get(str(user.id)) == None:
-            users_data[str(user.id)] = {
-                "name": interaction.user.name,
-                "grade": 0,
-                "last_evaluate": "미평가",
-                "review": {},
-                "warning": 0
-            }
-
-        users_data[str(user.id)]['grade'] += 1
-
-        with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
-            json.dump(users_data, json_file, indent=4)
-
-        await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
-
-        if users_data[str(user.id)]['grade'] in [1, 10, 50, 100]:
-            member = await interaction.guild.fetch_member(user.id)
-            role = interaction.guild.get_role(
-                config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
-            await member.add_roles(role)
-
-        try:
-            channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-            log_embed = discord.Embed(
-                title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-            await channel.send(embed=log_embed)
-        except Exception as e:
-            print("[유저평가] error 발생")
-            print(e)
+        
 
     @app_commands.command(name="유저정보", description="유저의 상태정보를 열람합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
     async def 유저정보(self, interaction: Interaction, 유저: str):

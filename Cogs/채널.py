@@ -17,6 +17,7 @@ import datetime
 import random
 
 from Cogs.대본 import 대본목록, 대본생성, 대본평가, gether_view
+from Cogs.유저 import 유저평가추가
 
 Channels = {}
 
@@ -667,57 +668,8 @@ class 채널(commands.Cog):
 
                 async def select_callback(interaction: discord.Interaction) -> None:
                     user = members[int(users_selects.values[0][0]) -1]
-                    with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
-                        users_data = json.load(json_file)
 
-                    if users_data.get(str(interaction.user.id)) != None:
-                        if users_data[str(interaction.user.id)]['last_evaluate'] == datetime.datetime.now().strftime("%Y-%m-%d"):
-                            await interaction.response.send_message(f"{interaction.user.mention} 오늘은 이미 평가하셨습니다.", ephemeral=True)
-                            return
-                        users_data[str(interaction.user.id)]["last_evaluate"] = datetime.datetime.now(
-                        ).strftime("%Y-%m-%d")
-                    else:
-                        users_data[str(interaction.user.id)] = {
-                            "name": interaction.user.name,
-                            "grade": 0,
-                            "last_evaluate": datetime.datetime.now().strftime("%Y-%m-%d"),
-                            "review": {},
-                            "warning": 0
-                        }
-
-                    
-                    if users_data.get(str(user.id)) == None:
-                        users_data[str(user.id)] = {
-                            "name": interaction.user.name,
-                            "grade": 0,
-                            "last_evaluate": "미평가",
-                            "review": {},
-                            "warning": 0
-                        }
-
-                    users_data[str(user.id)]['grade'] += 1
-
-                    with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
-                        json.dump(users_data, json_file, indent=4)
-
-                    await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
-
-                    if users_data[str(user.id)]['grade'] in [1, 10, 50, 100]:
-                        member = await interaction.guild.fetch_member(user.id)
-                        role = interaction.guild.get_role(
-                            config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
-                        await member.add_roles(role)
-
-                    try:
-                        channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
-                        log_embed = discord.Embed(
-                            title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
-                        await channel.send(embed=log_embed)
-                    except Exception as e:
-                        print("[유저평가] error 발생")
-                        print(e)
-
-                    print(users_selects.values[0])
+                    await 유저평가추가(user, interaction, self)
 
                 users_selects.callback = select_callback
 
