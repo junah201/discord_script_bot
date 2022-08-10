@@ -79,6 +79,110 @@ class 대본모달(discord.ui.Modal, title='대본'):
 
         await interaction.response.send_message(embed=embed, view=view)
 
+class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
+    남 = discord.ui.TextInput(
+        label='남', style=discord.TextStyle.short, max_length=2)
+    여 = discord.ui.TextInput(
+        label='여', style=discord.TextStyle.short, max_length=2)
+    #카테고리 = discord.ui.TextInput(
+    #    label='카테고리(0 : 전체, 1 : 애니, 2 : 영화&드라마, 3 : 라디오 드라마)', style=discord.TextStyle.short, max_length=2)
+
+    카테고리 = discord.ui.Select()
+    for type in ["애니", "영화&드라마", "라디오 드라마"]:
+        카테고리.add_option(label=type)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.남 = int(self.남.value)
+        self.여 = int(self.여.value)
+        self.카테고리 = self.카테고리.values[0]
+
+        datas = {}
+
+        for file in await 대본목록():
+            if file == "Script.json":
+                continue
+            if len(file) == 11 and int(file[0]) <= self.남 and int(file[2]) <= self.여 and int(file[0]) + int(file[2]) + int(file[4]) == self.남 + self.여:
+                with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
+                    tmp = json.load(json_file)
+                    if tmp.get(self.카테고리):
+                        datas.update(tmp.get(self.카테고리))
+
+        id = random.choice(list(datas.keys()))
+
+        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
+            script_list = json.load(json_file)
+
+        with open(f"./DB/Script/{script_list[str(id)]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
+            script_data = json.load(json_file)
+
+        script = script_data[script_list[str(id)]['type']][str(id)]
+
+        if script['rating'] == 0:
+            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"__{script['link']}__", color=0xff8671)  
+            embed.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
+            embed.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
+            embed.add_field(name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
+            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png", text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
+
+        
+        else:
+            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"__{script['link']}__", color=0xff8671)  
+            embed.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
+            embed.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
+            embed.add_field(name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
+            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png", text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
+        #else:
+        #    embed = discord.Embed(
+        #        title=f"{script_list[str(id)]['name']}", description=f"종류 : {script_list[str(id)]['type']}\n성별 : {script_list[str(id)]['gender']}\n링크 : {script['link']}\n평점 : {round(script['rating']/script['rating_users'], 1)}점 ({script['rating_users']}명)\n추가자 : {script['adder']} ({script['adder_id']})\n추가 시간 : {script['time']}", color=0xff8671)
+
+        await interaction.response.send_message(embed=embed)
+
+'''
+        datas = {}
+        for file in await 대본목록():
+            if file == "Script.json":
+                continue
+            if len(file) == 11 and int(file[0]) <= self.남 and int(file[2]) <= self.여 and int(file[0]) + int(file[2]) + int(file[4]) == self.남 + self.여:
+                with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
+                    datas.update(json.load(json_file))
+        #print(장르)
+
+        #selects = discord.ui.Select()
+
+        if not datas.keys():
+            return await interaction.response.send_message(f"존재하는 대본이 없습니다. ({self.남}남{self.여}여)", ephemeral=True)
+        
+        print(datas)
+
+
+
+
+        for 타입 in datas.keys():
+            tmp_embed, tmp_view = await 대본생성()
+
+            continue
+            print(타입)
+            print(타입 == "애니")
+
+            if 타입 == "애니":
+                if 장르 == 1:
+                    script_1 = await 대본생성(datas.get("애니"), self.남, self.여)
+                    print(script_1)
+            elif 타입 == "영화&드라마":
+                if 장르 == 2:
+                    script_1 = await 대본생성(datas.keys[2], self.남, self.여)
+                    print(script_1)
+            elif 타입 == "라디오 드라마":
+                if 장르 == 3:
+                    script_1 = await 대본생성(datas.items('라디오 드라마'), self.남, self.여)
+                    print(script_1)
+            else:
+                print("모두")
+
+        await interaction.response.send_message(script_1)
+'''
 
 class 대본하트모달(discord.ui.Modal, title='대본하트'):
     대본아이디 = discord.ui.TextInput(
@@ -305,7 +409,48 @@ class 채널(commands.Cog):
                 member: discord.PermissionOverwrite(manage_channels=True, connect=True, mute_members=True, kick_members=True, deafen_members=True),
             })
             await member.move_to(voice_channel)
-            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{member.name}᲻님의᲻대본방".replace("ANC | ", "𝙰𝙽𝙲᲻l᲻"), category=after.channel.category, overwrites={
+
+            replace_dict = {
+            "A" : "𝙰",
+            "B" : "𝙱",
+            "C" : "𝙲",
+            "D" : "𝙳",
+            "E" : "𝙴",
+            "F" : "𝙵",
+            "F" : "𝙶",
+            "H" : "𝙷",
+            "I" : "𝙸",
+            "J" : "𝙹",
+            "K" : "𝙺",
+            "L" : "𝙻",
+            "M" : "𝙼",
+            "N" : "𝙽",
+            "O" : "𝙾",
+            "P" : "𝙿",
+            "Q" : "𝚀",
+            "R" : "𝚁",
+            "S" : "𝚂",
+            "T" : "𝚃",
+            "U" : "𝚄",
+            "V" : "𝚅",
+            "W" : "𝚆",
+            "X" : "𝚇",
+            "Y" : "𝚈",
+            "Z" : "𝚉",
+            " " : "᲻",
+            "|" : "l",
+            }
+
+            replaced_name = []
+            for i in list(member.name):
+                if i in replace_dict.keys():
+                    replaced_name.append(replace_dict[i])
+                else:
+                    replaced_name.append(i)
+
+            # .replace("ANC | ", "𝙰𝙽𝙲᲻l᲻")
+
+            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{''.join(replaced_name)}᲻님의᲻대본방", category=after.channel.category, overwrites={
                 member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),
                 member.guild.default_role: discord.PermissionOverwrite(
                     view_channel=False)
@@ -322,7 +467,7 @@ class 채널(commands.Cog):
             #     name="뽑기", value="각각의 유저들에게 랜덤한 번호를 부여", inline=False)
             embed.set_author(
                 name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_image(url="https://i.imgur.com/YmBMJUx.png")
+            embed.set_image(url="https://i.imgur.com/GBkU7Xf.png")
             embed.set_footer(text="위 설명을 보시고 아래 버튼을 사용해 주세요")
             view = discord.ui.View(timeout=None)
 
@@ -697,6 +842,14 @@ class 채널(commands.Cog):
             async def start_SC_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_message("아직 개발 중인 기능입니다. 기대해주세요 !!", ephemeral=True)
 
+            random_script_button = discord.ui.Button(
+                emoji="<:RANDOMSC:1006880374900654100>")
+
+            async def random_script_button_callback(interaction: discord.Interaction):
+                await interaction.response.send_modal(랜덤대본모달())
+            random_script_button.callback = random_script_button_callback
+
+
             end_SC_button = discord.ui.Button(
                 emoji='<:END:1006113302453157908>')
 
@@ -705,7 +858,7 @@ class 채널(commands.Cog):
 
             view.add_item(gather_button)
             view.add_item(script_button)
-            view.add_item(script_heart_button)
+            view.add_item(random_script_button)
             view.add_item(pick_button)
             view.add_item(google_button)
 
@@ -717,14 +870,16 @@ class 채널(commands.Cog):
 
             view.add_item(set_limit_button)
             view.add_item(rename_button)
+            view.add_item(script_heart_button)
             view.add_item(voice_user_list_button)
-            view.add_item(Script_search_button)
             view.add_item(youtube_button)
 
+            #view.add_item(Script_search_button)
             view.add_item(start_SC_button)
             view.add_item(end_SC_button)
             # view.add_item(increase_limit_button)
             # view.add_item(decrease_limit_button)
+            
 
             await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}>")
 
