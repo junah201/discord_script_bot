@@ -1,9 +1,3 @@
-from ast import Await, Delete
-from cgi import print_directory
-from email import message
-from multiprocessing import Manager, managers
-from tkinter.font import names
-from tokenize import Name
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -17,7 +11,7 @@ import datetime
 import random
 
 from Cogs.대본 import 대본목록, 대본생성, 대본평가, gether_view
-from Cogs.유저 import 유저평가추가
+from Cogs.유저 import 취향저격추가
 
 Channels = {}
 
@@ -244,9 +238,9 @@ class 이름변경모달(discord.ui.Modal, title='이름변경'):
         if voice_state:
             await interaction.user.voice.channel.edit(name=변경이름)
             await interaction.channel.edit(name=변경이름)
-            await interaction.response.send_message(f"음성채널의 이름이 ``{변경이름}``으로 이름이 변경 되었습니다.")
+            await interaction.response.send_message(f"<:CHNA:1006084175599771709>᲻|᲻{interaction.user.name}님이 개설한 음성채널 이름이 <#{interaction.user.voice.channel.id}> 으로 이름이 변경 되었습니다.")
         else:
-            await interaction.response.send_message("음성 채널에 들어가 있지 않습니다.")
+            await interaction.response.send_message(f"🚫 | {interaction.user.name}님은 음성 채널에 들어가 있지 않습니다.")
 
 
 class 인원설정모달(discord.ui.Modal, title='인원설정'):
@@ -260,7 +254,7 @@ class 인원설정모달(discord.ui.Modal, title='인원설정'):
 
         user_limit = interaction.user.voice.channel.user_limit
         await interaction.user.voice.channel.edit(user_limit=설정인원)
-        await interaction.response.send_message(f"최대 배우님의 정원이 {설정인원} 명으로 설정되었습니다.")
+        await interaction.response.send_message(f"<:member:1006109383538790451>᲻|᲻최대 배우님의 정원이 변경 되었습니다. 현재 설정 된 인원 : ``{설정인원}`` 명")
 
 
 class 뽑기모달(discord.ui.Modal, title='뽑기'):
@@ -288,7 +282,7 @@ class 뽑기모달(discord.ui.Modal, title='뽑기'):
 
         for user, num in zip(users, random_num):
             embed.add_field(name=f"\t\t\t\t**⠀⠀⠀⠀⠀⠀《⠀⠀⠀⠀⠀{user}⠀⠀⠀⠀⠀》**",
-                            value=f"*{user}* 님은 : ||[⠀⠀⠀⠀⠀{num}⠀⠀⠀⠀⠀]||     번 입니다.", inline=False)
+                            value=f"*{user}* 님은 : [⠀⠀⠀⠀⠀__**{num}**__⠀⠀⠀⠀⠀]     번 입니다.", inline=False)
 
         await interaction.response.send_message(embed=embed)
 
@@ -302,12 +296,15 @@ class 채널(commands.Cog):
         global Channels
         channel_id = config["GENERATOR_CHANNEL_ID"]
         category_id = config["GENERATOR_CATEGORY_ID"]
+        if before.channel == after.channel:
+            return
+
         if after.channel != None and after.channel.id == channel_id:
-            voice_channel = await after.channel.guild.create_voice_channel(name=f"{member.name} 님의 대본방", category=after.channel.category, overwrites={
+            voice_channel = await after.channel.guild.create_voice_channel(name=f"{member.name} 님의 대본방".replace(" | ", "᲻"), category=after.channel.category, overwrites={
                 member: discord.PermissionOverwrite(manage_channels=True, connect=True, mute_members=True, kick_members=True, deafen_members=True),
             })
             await member.move_to(voice_channel)
-            text_channel = await after.channel.guild.create_text_channel(name=f"🌽 ឵ {(member.name).replace('-', '')} ឵ 님의 ឵ 대본방", category=after.channel.category, overwrites={
+            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{member.name}᲻님의᲻대본방".replace("ANC | ", "𝙰𝙽𝙲᲻l᲻"), category=after.channel.category, overwrites={
                 member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),
                 member.guild.default_role: discord.PermissionOverwrite(
                     view_channel=False)
@@ -510,7 +507,7 @@ class 채널(commands.Cog):
 
                         await interaction.channel.send(embed=ending_embed, view=ending_view)
                     else:
-                        await interaction.response.send_message(f"마무리 버튼은 개설자인 {embed.author.name} 님만 사용할 수 있습니다.", ephemeral=True)
+                        await interaction.response.send_message(f"🚫 | 마무리 버튼은 개설자인 {embed.author.name} 님만 사용할 수 있습니다.", ephemeral=True)
 
                 ending_button.callback = ending_button_callback
                 view.add_item(ending_button)
@@ -549,7 +546,7 @@ class 채널(commands.Cog):
                     await interaction.response.send_modal(이름변경모달())
                 else:
                     await interaction.response.send_message(
-                        f"이름 변경은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+                        f"🚫 | ``이름 변경`` 은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
             rename_button.callback = rename_button_callback
 
             lock_button = discord.ui.Button(
@@ -562,10 +559,11 @@ class 채널(commands.Cog):
                         interaction.guild.default_role)
                     overwrite.connect = False
                     await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-                    await interaction.response.send_message(f"<:ro1:935564780163440751> | {channel}을 ``잠금``했습니다.", ephemeral=True)
+                    await interaction.response.send_message(
+                        f"<:LOCKON:1006084192246976572>᲻|᲻《 ឵ ឵឵ ឵ ឵឵ ឵<#{channel.id}> ឵ ឵឵ ឵ ឵឵ ឵》을 ``잠금``했습니다. 🔴 ``잠금상태에서는 서버원들이 참여할 수 없습니다.``", ephemeral=False)
                 else:
                     await interaction.response.send_message(
-                        f"잠금 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+                        f"🚫 | ``잠금`` 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
             lock_button.callback = lock_button_callback
 
             unlock_button = discord.ui.Button(
@@ -578,10 +576,11 @@ class 채널(commands.Cog):
                         interaction.guild.default_role)
                     overwrite.connect = True
                     await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-                    await interaction.response.send_message(f"{channel}을 ``잠금해제``했습니다.", ephemeral=True)
+                    await interaction.response.send_message(
+                        f"<:LOCKOFF:1006084190737010769>᲻|᲻《 ឵ ឵឵ ឵ ឵឵ ឵<#{channel.id}> ឵ ឵឵ ឵ ឵឵ ឵》을 ``잠금해제``했습니다. 🔵 ``다시 서버원들이 참여할 수 있습니다.``", ephemeral=False)
                 else:
                     await interaction.response.send_message(
-                        f"잠금 해제버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+                        f"🚫 | 잠금 해제버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
             unlock_button.callback = unlock_button_callback
 
             hide_button = discord.ui.Button(
@@ -594,10 +593,11 @@ class 채널(commands.Cog):
                         interaction.guild.default_role)
                     overwrite.view_channel = False
                     await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-                    await interaction.response.send_message(f"{channel}을 ``숨김``기능을 활성화 했습니다.", ephemeral=True)
+                    await interaction.response.send_message(
+                        f"<:EYEOFF:1006084181014614057>᲻|᲻《 ឵ ឵឵ ឵ ឵឵ ឵<#{channel.id}> ឵ ឵឵ ឵ ឵឵ ឵》을 ``숨김``기능이 활성화 되었습니다. 🔴 ``숨김상태에서는 서버원들이 이 음성대화를 볼 수 없습니다.``", ephemeral=False)
                 else:
                     await interaction.response.send_message(
-                        f"숨김 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+                        f"🚫 | ``숨김`` 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
             hide_button.callback = hide_button_callback
 
             unhide_button = discord.ui.Button(
@@ -610,10 +610,11 @@ class 채널(commands.Cog):
                         interaction.guild.default_role)
                     overwrite.view_channel = True
                     await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-                    await interaction.response.send_message(f"{channel}을 ``숨김``기능을 비활성화 했습니다.", ephemeral=True)
+                    await interaction.response.send_message(
+                        f"<:EYEON:1006084183849959464>᲻|᲻《 ឵ ឵឵ ឵ ឵឵ ឵<#{channel.id}> ឵ ឵឵ ឵ ឵឵ ឵》의 ``숨김``기능을 비활성화 했습니다. 🔵 ``서버원에게 해당 음성대화가 다시 보입니다.``", ephemeral=False)
                 else:
                     await interaction.response.send_message(
-                        f"숨김 해제버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+                        f"🚫 | ``숨김해제`` 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
             unhide_button.callback = unhide_button_callback
 
             increase_limit_button = discord.ui.Button(
@@ -643,7 +644,7 @@ class 채널(commands.Cog):
                     await interaction.response.send_modal(인원설정모달())
                 else:
                     await interaction.response.send_message(
-                        f"인원설정은 개설자인 {member.name} 님만 할 수 있습니다.", ephemeral=True)
+                        f"🚫 | ``인원설정`` 은 개설자인 {member.name} 님만 할 수 있습니다.", ephemeral=True)
             set_limit_button.callback = set_limit_button_callback
 
             Script_search_button = discord.ui.Button(
@@ -661,15 +662,17 @@ class 채널(commands.Cog):
             async def voice_user_list_button_callback(interaction: discord.Interaction):
                 users_view = discord.ui.View()
                 users_selects = discord.ui.Select()
-
                 members = interaction.user.voice.channel.members
+                member_avatar = interaction.user.avatar
+
+                print(member, member_avatar)
                 for idx in range(len(members)):
-                    users_selects.add_option(label=f"{idx + 1}. {members[idx]}")
+                    users_selects.add_option(label=f"{idx + 1}. {members[idx]}", emoji=f"❤️")
 
                 async def select_callback(interaction: discord.Interaction) -> None:
                     user = members[int(users_selects.values[0][0]) -1]
 
-                    await 유저평가추가(user, interaction, self)
+                    await 취향저격추가(user, interaction, self)
 
                 users_selects.callback = select_callback
 
@@ -752,6 +755,9 @@ class 채널(commands.Cog):
                 member, view_channel=True)
 
         if before.channel != None and before.channel.category.id == category_id:
+            print(f"before : ", before)
+            print(f"after : ", after)
+
             await Channels[before.channel.id]["text_channel"].set_permissions(
                 member, view_channel=False)
 
