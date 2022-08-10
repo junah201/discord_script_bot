@@ -12,14 +12,15 @@ import re
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
-async def 유저평가추가(유저 : discord.Member, interaction : discord.Interaction, self):
+
+async def 취향저격추가(유저: discord.Member, interaction: discord.Interaction, self):
     if 유저.id == interaction.user.id:
         # ↓↓↓ 연가람이 메시지 적음
         await interaction.response.send_message(f"{interaction.user.mention} 님 ^^ 자기 자신을 추천할 수는 없는거랍니다 ㅎㅎ", ephemeral=False)
         return
 
     with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
-            users_data = json.load(json_file)
+        users_data = json.load(json_file)
 
     if users_data.get(str(interaction.user.id)) != None:
         if users_data[str(interaction.user.id)]['last_evaluate'] == datetime.datetime.now().strftime("%Y-%m-%d"):
@@ -70,15 +71,14 @@ async def 유저평가추가(유저 : discord.Member, interaction : discord.Inte
         print("[유저평가] error 발생")
         print(e)
 
+
 class 유저(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
     @app_commands.command(name="취향저격", description="리딩에서 감명 깊은 연기를 선보여준 배우에게 하트를 보냅니다. (유저 칸에는 원하는 유저를 맨션해주세요.) (하루에 1회 사용 가능)")
     async def 취향저격(self, interaction: Interaction, 유저: discord.Member):
-        await 유저평가추가(유저, interaction, self)
-
-        
+        await 취향저격추가(유저, interaction, self)
 
     @app_commands.command(name="유저정보", description="유저의 상태정보를 열람합니다. (유저 칸에는 원하는 유저를 맨션해주세요.)")
     async def 유저정보(self, interaction: Interaction, 유저: str):

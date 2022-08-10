@@ -188,7 +188,7 @@ class 대본검색모달(discord.ui.Modal, title='대본검색'):
 
     async def on_submit(self, interaction: discord.Interaction):
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
-                script_list = json.load(json_file)
+            script_list = json.load(json_file)
 
         self.대본검색 = self.대본검색.value
 
@@ -224,6 +224,7 @@ class 대본검색모달(discord.ui.Modal, title='대본검색'):
         except Exception as e:
             print("[대본검색] error 발생")
             print(e)
+
 
 class 이름변경모달(discord.ui.Modal, title='이름변경'):
     이름 = discord.ui.TextInput(
@@ -320,7 +321,7 @@ class 채널(commands.Cog):
             # embed.add_field(
             #     name="뽑기", value="각각의 유저들에게 랜덤한 번호를 부여", inline=False)
             embed.set_author(
-                 name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
+                name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed.set_image(url="https://i.imgur.com/YmBMJUx.png")
             embed.set_footer(text="위 설명을 보시고 아래 버튼을 사용해 주세요")
             view = discord.ui.View(timeout=None)
@@ -652,10 +653,10 @@ class 채널(commands.Cog):
 
             async def Script_search_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(대본검색모달())
-                    
+
             Script_search_button.callback = Script_search_button_callback
 
-            ###################취향저격
+            # 취향저격
             voice_user_list_button = discord.ui.Button(
                 emoji="<:likevoice:1006617022089678848>")
 
@@ -667,10 +668,11 @@ class 채널(commands.Cog):
 
                 print(member, member_avatar)
                 for idx in range(len(members)):
-                    users_selects.add_option(label=f"{idx + 1}. {members[idx]}", emoji=f"❤️")
+                    users_selects.add_option(
+                        label=f"{idx + 1}. {members[idx]}", emoji=f"❤️")
 
                 async def select_callback(interaction: discord.Interaction) -> None:
-                    user = members[int(users_selects.values[0][0]) -1]
+                    user = members[int(users_selects.values[0][0]) - 1]
 
                     await 취향저격추가(user, interaction, self)
 
@@ -678,8 +680,8 @@ class 채널(commands.Cog):
 
                 users_view.add_item(users_selects)
 
-                await interaction.response.send_message("💌 좋은 연기를 들려 주신분께 하트를 보내주세요. (하루에 ``1``회)", view = users_view, ephemeral=True)
-            
+                await interaction.response.send_message("💌 좋은 연기를 들려 주신분께 하트를 보내주세요. (하루에 ``1``회)", view=users_view, ephemeral=True)
+
             voice_user_list_button.callback = voice_user_list_button_callback
 
             google_button = discord.ui.Button(
@@ -692,7 +694,7 @@ class 채널(commands.Cog):
             start_SC_button = discord.ui.Button(
                 emoji='<:START:1006113303816314951>')
 
-            async def start_SC_button_callback(interaction : discord.Interaction):
+            async def start_SC_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_message("아직 개발 중인 기능입니다. 기대해주세요 !!", ephemeral=True)
 
             end_SC_button = discord.ui.Button(
@@ -724,7 +726,6 @@ class 채널(commands.Cog):
             # view.add_item(increase_limit_button)
             # view.add_item(decrease_limit_button)
 
-
             await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}>")
 
             embed_si = discord.Embed(
@@ -748,22 +749,25 @@ class 채널(commands.Cog):
                     await asyncio.sleep(60)
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
+            await Channels[before.channel.id]["text_channel"].delete()
             await before.channel.delete()
+            Channels.pop(before.channel.id)
 
-        if after.channel != None and after.channel.category.id == category_id:
+        if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
             await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
 
-        if before.channel != None and before.channel.category.id == category_id:
-            print(f"before : ", before)
-            print(f"after : ", after)
-
-            await Channels[before.channel.id]["text_channel"].set_permissions(
-                member, view_channel=False)
+        if before.channel != None and before.channel.category.id == category_id and before.channel.id != channel_id:
+            try:
+                await Channels[before.channel.id]["text_channel"].set_permissions(
+                    member, view_channel=False)
+            except Exception as e:
+                print(e)
+                print(Channels)
 
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
         채널(bot),
-        guilds=[Object(id=568688402904645642)]
+        guilds=[Object(id=config['GUILD_ID'])]
     )
