@@ -1,21 +1,21 @@
+from unicodedata import name
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 from discord import Interaction
 from discord import Object
 import asyncio
+from discord.utils import get
 
 import json
 import os
 import datetime
 import random
 
-from Cogs.대본 import 대본목록, 대본생성, 대본평가, gether_view
+from Cogs.대본 import 대본목록, 대본생성, 대본평가, gether_view, 대본시작_엠바드_생성, 대본하트_엠바드_및_뷰_생성
 from Cogs.유저 import 취향저격추가
 
 Channels = {}
-
-redh = {}
 
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
@@ -183,105 +183,17 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
 
         await interaction.response.send_message(script_1)
 '''
+# def is_reading_channel(channel_id: int) -> bool:
+#     if channel_id in config["READING_CHANNEL_ID"]:
+#         return False
+#     return True
 
 class 대본하트모달(discord.ui.Modal, title='대본하트'):
     대본아이디 = discord.ui.TextInput(
         label='대본아이디', style=discord.TextStyle.short, max_length=4)
 
     async def on_submit(self, interaction: discord.Interaction):
-        self.대본아이디 = self.대본아이디.value
-
-        with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
-            script_list = json.load(json_file)
-
-        if str(self.대본아이디) not in script_list.keys():
-            return await interaction.response.send_message("존재하지 않는 대본입니다.", ephemeral=True)
-
-        heart_embed = discord.Embed(title="대본 평가하기")
-        heart_embed.add_field(
-            name="제목", value=f"[{script_list[self.대본아이디]['name']}]({script_list[self.대본아이디]['link']})")
-        heart_embed.add_field(
-            name="성비", value=f"{script_list[self.대본아이디]['gender']}")
-
-        with open(f"./DB/Script/{script_list[self.대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
-            script_data = json.load(json_file)
-
-        data = script_data[script_list[self.대본아이디]['type']][self.대본아이디]
-
-        if data['rating'] == 0:
-            heart_embed.add_field(
-                name="하트", value=f"미평가 (0명)")
-        else:
-            heart_embed.add_field(
-                name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
-
-        heart_view = discord.ui.View(timeout=1200)
-
-        one_button = discord.ui.Button(label="1점")
-
-        async def one_button_callback(interaction: discord.Interaction):
-            await 대본평가(interaction, self.대본아이디, 1, heart_embed)
-            with open(f"./DB/Script/{script_list[self.대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
-                script_data = json.load(json_file)
-                data = script_data[script_list[self.대본아이디]['type']][self.대본아이디]
-            heart_embed.set_field_at(
-                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
-            await interaction.response.edit_message(embed=heart_embed)
-        one_button.callback = one_button_callback
-
-        two_button = discord.ui.Button(label="2점")
-
-        async def two_button_callback(interaction: discord.Interaction):
-            await 대본평가(interaction, self.대본아이디, 2, heart_embed)
-            with open(f"./DB/Script/{script_list[self.대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
-                script_data = json.load(json_file)
-                data = script_data[script_list[self.대본아이디]['type']][self.대본아이디]
-            heart_embed.set_field_at(
-                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
-            await interaction.response.edit_message(embed=heart_embed)
-        two_button.callback = two_button_callback
-
-        three_button = discord.ui.Button(label="3점")
-
-        async def three_button_callback(interaction: discord.Interaction):
-            await 대본평가(interaction, self.대본아이디, 3, heart_embed)
-            with open(f"./DB/Script/{script_list[self.대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
-                script_data = json.load(json_file)
-                data = script_data[script_list[self.대본아이디]['type']][self.대본아이디]
-            heart_embed.set_field_at(
-                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
-            await interaction.response.edit_message(embed=heart_embed)
-        three_button.callback = three_button_callback
-
-        four_button = discord.ui.Button(label="4점")
-
-        async def four_button_callback(interaction: discord.Interaction):
-            await 대본평가(interaction, self.대본아이디, 4, heart_embed)
-            with open(f"./DB/Script/{script_list[self.대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
-                script_data = json.load(json_file)
-                data = script_data[script_list[self.대본아이디]['type']][self.대본아이디]
-            heart_embed.set_field_at(
-                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
-            await interaction.response.edit_message(embed=heart_embed)
-        four_button.callback = four_button_callback
-
-        five_button = discord.ui.Button(label="5점")
-
-        async def five_button_callback(interaction: discord.Interaction):
-            await 대본평가(interaction, self.대본아이디, 5, heart_embed)
-            with open(f"./DB/Script/{script_list[self.대본아이디]['gender']}.json", "r", encoding="utf-8-sig") as json_file:
-                script_data = json.load(json_file)
-                data = script_data[script_list[self.대본아이디]['type']][self.대본아이디]
-            heart_embed.set_field_at(
-                index=2, name="하트", value=f"{''.join(['❤️' for i in range(round(data['rating'] // data['rating_users']))])}{''.join(['🤍' for i in range(round(5 - (data['rating'] // data['rating_users'])))])} ({data['rating_users']}명)")
-            await interaction.response.edit_message(embed=heart_embed)
-        five_button.callback = five_button_callback
-
-        heart_view.add_item(one_button)
-        heart_view.add_item(two_button)
-        heart_view.add_item(three_button)
-        heart_view.add_item(four_button)
-        heart_view.add_item(five_button)
+        heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(id = self.대본아이디.value)
 
         await interaction.response.send_message(embed=heart_embed, view=heart_view)
 
@@ -361,6 +273,77 @@ class 인원설정모달(discord.ui.Modal, title='인원설정'):
         await interaction.user.voice.channel.edit(user_limit=설정인원)
         await interaction.response.send_message(f"<:member:1006109383538790451>᲻|᲻최대 배우님의 정원이 변경 되었습니다. 현재 설정 된 인원 : ``{설정인원}`` 명")
 
+class 대본시작모달(discord.ui.Modal, title='대본시작'):
+    시간설정 = discord.ui.TextInput(
+        label='초(sec) 단위로 시간을 설정합니다. ex)120 = 2분', style=discord.TextStyle.short, default = "0")
+
+    대본 = discord.ui.TextInput(
+        label='대본 아이디 혹은 대본 링크를 넣어주세요.', style=discord.TextStyle.long)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            설정시간 = int(self.시간설정.value)
+        except:
+            return await interaction.response.send_message("시간은 0 이상의 정수로 넣어주세요.", ephemeral=True)
+        현재대본 = self.대본.value
+        global Channels
+        Channels[interaction.user.voice.channel.id]["is_reading"] = True
+        try:
+            Channels[interaction.user.voice.channel.id]["reading_script"] = int(현재대본)
+            Channels[interaction.user.voice.channel.id]["reading_script_type"] = "id"
+        except:
+            Channels[interaction.user.voice.channel.id]["reading_script"] = 현재대본
+            Channels[interaction.user.voice.channel.id]["reading_script_type"] = "link"
+
+        if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
+            tmp_embed = 대본시작_엠바드_생성(id = Channels[interaction.user.voice.channel.id]["reading_script"])
+            await interaction.response.send_message(content = f"대본 ID {현재대본} 으로 대본이 설정 되었습니다.")
+        elif Channels[interaction.user.voice.channel.id]["reading_script_type"] == "link":
+            await interaction.response.send_message(content = f"아래 대본으로 설정 되었습니다.\n\n{현재대본}")
+
+        embed_time = discord.Embed(
+            title="< 예약된 알림 >", description=f"잠시 후 대본 리딩이 시작 됩니다.", timestamp=datetime.datetime.now(), color=0xFFFF00)
+        embed_time.add_field(
+            name="< 리딩 에티켓 >", value="```1. 과한 애드립은 삼가주세요.``````2. 자기 차례를 필히 준수해 주세요.``````3. 역할 찾기 : F3 또는 컨트롤+F```", inline=False)
+        embed_time.set_thumbnail(
+            url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
+        embed_time.set_image(
+            url="https://i.imgur.com/IO3jvcq.gif")
+
+        if 설정시간 == 0:
+            if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
+                await interaction.channel.send(embed=embed_time)
+                await interaction.channel.send(content = f"시작 되는 대본은 아래와 같습니다.", embed = tmp_embed)
+            else:
+                await interaction.channel.send(f"> 대본이 시작됩니다. <@&{config['ACTOR_ROLE_ID']}>\n └ 시작 되는 대본 : {현재대본}", embed=embed_time)
+
+            return
+
+        elif 설정시간 >= 0:
+            embed = discord.Embed(
+                title='⠀⠀⠀⠀〔⠀⠀⠀🥇 준비⠀⠀⠀〕',
+                description='정한 시간을 정했습니다..',
+                color=discord.Color(0xFFFF00)
+            )
+
+            embed.set_thumbnail(
+                url="https://cdn.discordapp.com/attachments/827931592932065332/841197513561735168/6979bf056826de22.png")
+            embed.set_image(
+                url="https://i.imgur.com/xLNYJF0.png")
+
+            embed = discord.Embed(
+                title="리딩이 예약 되었습니다.", description=f"{설정시간}초 후에 대본 리딩이 시작됩니다.", timestamp=datetime.datetime.now(), color=0xFFFF00)
+
+            await interaction.channel.send(embed=embed)
+
+            await asyncio.sleep(설정시간)
+            if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
+                await interaction.channel.send(embed=embed_time)
+                await interaction.channel.send(f"> {설정시간}초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}>\n └ 대본 ID : {현재대본}", embed = tmp_embed)
+
+            else:
+                await interaction.channel.send(embed=embed_time)
+                await interaction.channel.send(content = f"시작 되는 대본은 아래와 같습니다.\n{현재대본}")
 
 class 뽑기모달(discord.ui.Modal, title='뽑기'):
     뽑기 = discord.ui.TextInput(
@@ -397,18 +380,37 @@ class 채널(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
+    async def on_voice_state_update(
+        self,
+        member: discord.Member,
+        before: discord.VoiceState,
+        after: discord.VoiceState,
+        ):
         global Channels
+
+        if member.bot:
+            return
+
         channel_id = config["GENERATOR_CHANNEL_ID"]
         category_id = config["GENERATOR_CATEGORY_ID"]
+         
         if before.channel == after.channel:
             return
 
         if after.channel != None and after.channel.id == channel_id:
-            voice_channel = await after.channel.guild.create_voice_channel(name=f"{member.name} 님의 대본방".replace(" | ", "᲻"), category=after.channel.category, overwrites={
+            member_view_role = discord.utils.get(member.guild.roles, id=config["READING_CHANNEL_VIEW_ID"])
+
+            voice_channel = await after.channel.guild.create_voice_channel(name=f"{member.name} 님의 대본방", category=after.channel.category,
+            overwrites={
                 member: discord.PermissionOverwrite(manage_channels=True, connect=True, mute_members=True, kick_members=True, deafen_members=True),
+                member_view_role: discord.PermissionOverwrite(view_channel=True),
+                member.guild.default_role: discord.PermissionOverwrite(view_channel=False)
+
             })
             await member.move_to(voice_channel)
+
+            # overwrites={
+            #     member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),member.guild.default_role: discord.PermissionOverwrite( view_channel=False)})
 
             replace_dict = {
             "A" : "𝙰",
@@ -449,8 +451,8 @@ class 채널(commands.Cog):
                     replaced_name.append(i)
 
             # .replace("ANC | ", "𝙰𝙽𝙲᲻l᲻")
-
-            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{''.join(replaced_name)}᲻님의᲻대본방", category=after.channel.category, overwrites={
+            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{''.join(replaced_name)}᲻님의᲻대본방", category=after.channel.category,   
+            overwrites={
                 member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),
                 member.guild.default_role: discord.PermissionOverwrite(
                     view_channel=False)
@@ -840,7 +842,27 @@ class 채널(commands.Cog):
                 emoji='<:START:1006113303816314951>')
 
             async def start_SC_button_callback(interaction: discord.Interaction):
-                await interaction.response.send_message("아직 개발 중인 기능입니다. 기대해주세요 !!", ephemeral=True)
+                await interaction.response.send_modal(대본시작모달())
+            start_SC_button.callback = start_SC_button_callback
+
+            end_SC_button = discord.ui.Button(
+                emoji='<:END:1006113302453157908>')
+
+            async def end_SC_button_callback(interaction: discord.Interaction):
+                global Channels
+
+                if Channels[interaction.user.voice.channel.id].get("is_reading") == None or Channels[interaction.user.voice.channel.id]["is_reading"] == False:
+                    return await interaction.response.send_message("진행 중인 대본이 없습니다.")
+                
+
+                Channels[interaction.user.voice.channel.id]["is_reading"] = False
+                if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
+                    heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(Channels[interaction.user.voice.channel.id]["reading_script"])
+                    await interaction.response.send_message("대본을 종료하였습니다.", embed = heart_embed, view = heart_view)
+                else:
+                    await interaction.response.send_message("대본을 종료하였습니다.")
+
+            end_SC_button.callback = end_SC_button_callback
 
             random_script_button = discord.ui.Button(
                 emoji="<:RANDOMSC:1006880374900654100>")
@@ -848,13 +870,6 @@ class 채널(commands.Cog):
             async def random_script_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(랜덤대본모달())
             random_script_button.callback = random_script_button_callback
-
-
-            end_SC_button = discord.ui.Button(
-                emoji='<:END:1006113302453157908>')
-
-            start_SC_button.callback = start_SC_button_callback
-            end_SC_button.callback = start_SC_button_callback
 
             view.add_item(gather_button)
             view.add_item(script_button)
@@ -894,7 +909,12 @@ class 채널(commands.Cog):
             last_message = await text_channel.send(embed=embed, view=view)
 
             Channels[voice_channel.id] = {
-                "text_channel": text_channel, "last_message": last_message}
+                "text_channel": text_channel,
+                "last_message": last_message,
+                "is_reading" : False,
+                "reading_script" : None,
+                "reading_script_type" : None
+                }
 
             while True:
                 try:
@@ -902,6 +922,13 @@ class 채널(commands.Cog):
                 except:
                     Channels[voice_channel.id]["last_message"] = await text_channel.send(embed=embed, view=view)
                     await asyncio.sleep(60)
+
+        # if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
+        #     await Channels[after.channel.id]["text_channel"].set_permissions(member, view_channel=True)
+        #     await text_channel.send("하이")
+            #if before.channel is None and after.channel is not None:
+
+        #channel_id는 config에서 설정한 대본방을 생성하는 음성채널이다.  category_id는 config에서 설정한 대본방 전체 카테고리이다.
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
             await Channels[before.channel.id]["text_channel"].delete()
@@ -911,8 +938,14 @@ class 채널(commands.Cog):
         if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
             await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
+            if Channels[after.channel.id]["is_reading"] != None and Channels[after.channel.id]["is_reading"]:
+                if Channels[after.channel.id]["reading_script_type"] == "id":
+                    await Channels[after.channel.id]["text_channel"].send(content = f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.", embed = 대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
+                elif Channels[after.channel.id]["reading_script_type"] == "link":
+                    await Channels[after.channel.id]["text_channel"].send(content = f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}")
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.id != channel_id:
+
             try:
                 await Channels[before.channel.id]["text_channel"].set_permissions(
                     member, view_channel=False)
