@@ -458,7 +458,7 @@ class 채널(commands.Cog):
                     view_channel=False)
             })
 
-            embed = discord.Embed(color=0xFFFF00)
+            embed = discord.Embed(description= "🟢 초록색 버튼 : 모든 유저가 사용 가능한 명령어\n🔵 파란색 버튼 : 음성채널 생성자만 사용 가능한 명령어", color=0xFFFF00)
             # embed.add_field(
             #     name="모여", value="대배우 역할을 가진 유저들을 맨션하여 리딩을 시작", inline=False)
             # embed.add_field(
@@ -469,12 +469,12 @@ class 채널(commands.Cog):
             #     name="뽑기", value="각각의 유저들에게 랜덤한 번호를 부여", inline=False)
             embed.set_author(
                 name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_image(url="https://i.imgur.com/GBkU7Xf.png")
+            embed.set_image(url="https://i.imgur.com/qVpClGR.png")
             embed.set_footer(text="위 설명을 보시고 아래 버튼을 사용해 주세요")
             view = discord.ui.View(timeout=None)
 
             gather_button = discord.ui.Button(
-                emoji="<:JOIN:1006084189172547664>")  # , label="모여")
+                emoji=f"{config['SERVER_EMOJI']['GENERATOR_EMOJI']}", style=discord.ButtonStyle.success)  # , label="모여")
 
             async def gather_button_callback(interaction: discord.Interaction):
                 embed = discord.Embed(color=0xFFFF00)
@@ -666,28 +666,28 @@ class 채널(commands.Cog):
             gather_button.callback = gather_button_callback
 
             script_button = discord.ui.Button(
-                emoji="<:SCR:1006084170004574248>")  # ,label="대본")
+                emoji=f"{config['SERVER_EMOJI']['SCRIPT_EMOJI']}", style=discord.ButtonStyle.success)  # ,label="대본")
 
             async def script_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(대본모달())
             script_button.callback = script_button_callback
 
             script_heart_button = discord.ui.Button(
-                emoji="<:SCRH:1006084172433072170>")  # , label="대본하트")
+                emoji=f"{config['SERVER_EMOJI']['SCRIPT_HEART_EMOJI']}", style=discord.ButtonStyle.success)  # , label="대본하트")
 
             async def script_heart_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(대본하트모달())
             script_heart_button.callback = script_heart_button_callback
 
             pick_button = discord.ui.Button(
-                emoji="<:tiket:1006084174110806118>")  # ,label="뽑기")
+                emoji=f"{config['SERVER_EMOJI']['PICK_EMOJI']}", style=discord.ButtonStyle.success)  # ,label="뽑기")
 
             async def pick_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(뽑기모달())
             pick_button.callback = pick_button_callback
 
             rename_button = discord.ui.Button(
-                emoji="<:CHNA:1006084175599771709>")  # ,label="이름변경")
+                emoji=f"{config['SERVER_EMOJI']['VOICE_RENAME_EMOJI']}", style=discord.ButtonStyle.primary)  # ,label="이름변경")
 
             async def rename_button_callback(interaction: discord.Interaction):
                 if member.id == interaction.user.id:
@@ -698,7 +698,7 @@ class 채널(commands.Cog):
             rename_button.callback = rename_button_callback
 
             lock_button = discord.ui.Button(
-                emoji="<:LOCKON:1006084192246976572>")  # , label="잠금")
+                emoji=f"{config['SERVER_EMOJI']['LOCK_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="잠금")
 
             async def lock_button_callback(interaction: discord.Interaction):
                 if member.id == interaction.user.id:
@@ -715,7 +715,7 @@ class 채널(commands.Cog):
             lock_button.callback = lock_button_callback
 
             unlock_button = discord.ui.Button(
-                emoji="<:LOCKOFF:1006084190737010769>")  # , label="해제")
+                emoji=f"{config['SERVER_EMOJI']['UNLOCK_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="해제")
 
             async def unlock_button_callback(interaction: discord.Interaction):
                 if member.id == interaction.user.id:
@@ -732,7 +732,7 @@ class 채널(commands.Cog):
             unlock_button.callback = unlock_button_callback
 
             hide_button = discord.ui.Button(
-                emoji="<:EYEOFF:1006084181014614057>")  # , label="숨김")
+                emoji=f"{config['SERVER_EMOJI']['HIDE_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="숨김")
 
             async def hide_button_callback(interaction: discord.Interaction):
                 if member.id == interaction.user.id:
@@ -749,7 +749,7 @@ class 채널(commands.Cog):
             hide_button.callback = hide_button_callback
 
             unhide_button = discord.ui.Button(
-                emoji="<:EYEON:1006084183849959464>")  # , label="숨김해제")
+                emoji=f"{config['SERVER_EMOJI']['UNHIDE_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="숨김해제")
 
             async def unhide_button_callback(interaction: discord.Interaction):
                 if member.id == interaction.user.id:
@@ -766,7 +766,7 @@ class 채널(commands.Cog):
             unhide_button.callback = unhide_button_callback
 
             increase_limit_button = discord.ui.Button(
-                emoji="<:INCR:1006084185821290497>")  # , label="증가")
+                emoji=f"{config['SERVER_EMOJI']['GENERATOR_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="증가")
 
             async def increase_limit_button_callback(interaction: discord.Interaction):
                 user_limit = interaction.user.voice.channel.user_limit
@@ -775,7 +775,7 @@ class 채널(commands.Cog):
             increase_limit_button.callback = increase_limit_button_callback
 
             decrease_limit_button = discord.ui.Button(
-                emoji="<:DECR:1006084177403326514>")  # , label="감소")
+                emoji=f"{config['SERVER_EMOJI']['GENERATOR_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="감소")
 
             async def decrease_limit_button_callback(interaction: discord.Interaction):
                 user_limit = interaction.user.voice.channel.user_limit
@@ -785,7 +785,7 @@ class 채널(commands.Cog):
             decrease_limit_button.callback = decrease_limit_button_callback
 
             set_limit_button = discord.ui.Button(
-                emoji="<:member:1006109383538790451>")
+                emoji=f"{config['SERVER_EMOJI']['VOICE_LIMIT_USER_EMOJI']}", style=discord.ButtonStyle.primary)
 
             async def set_limit_button_callback(interaction: discord.Interaction):
                 if member.id == interaction.user.id:
@@ -796,7 +796,7 @@ class 채널(commands.Cog):
             set_limit_button.callback = set_limit_button_callback
 
             Script_search_button = discord.ui.Button(
-                emoji="<:SEARCH:1006616384899399761>")
+                emoji=f"{config['SERVER_EMOJI']['GENERATOR_EMOJI']}", style=discord.ButtonStyle.success)
 
             async def Script_search_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(대본검색모달())
@@ -805,7 +805,7 @@ class 채널(commands.Cog):
 
             # 취향저격
             voice_user_list_button = discord.ui.Button(
-                emoji="<:likevoice:1006617022089678848>")
+                emoji=f"{config['SERVER_EMOJI']['USER_HEART_EMOJI']}", style=discord.ButtonStyle.success )
 
             async def voice_user_list_button_callback(interaction: discord.Interaction):
                 users_view = discord.ui.View()
@@ -839,14 +839,14 @@ class 채널(commands.Cog):
                 emoji="<:youtube:1006104730717651044>", url="https://www.youtube.com/")
 
             start_SC_button = discord.ui.Button(
-                emoji='<:START:1006113303816314951>')
+                emoji=f"{config['SERVER_EMOJI']['SCRIPT_START_EMOJI']}", style=discord.ButtonStyle.success)
 
             async def start_SC_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(대본시작모달())
             start_SC_button.callback = start_SC_button_callback
 
             end_SC_button = discord.ui.Button(
-                emoji='<:END:1006113302453157908>')
+                emoji=f"{config['SERVER_EMOJI']['SCRIPT_END_EMOJI']}", style=discord.ButtonStyle.success)
 
             async def end_SC_button_callback(interaction: discord.Interaction):
                 global Channels
@@ -865,7 +865,7 @@ class 채널(commands.Cog):
             end_SC_button.callback = end_SC_button_callback
 
             random_script_button = discord.ui.Button(
-                emoji="<:RANDOMSC:1006880374900654100>")
+                emoji=f"{config['SERVER_EMOJI']['RANDOM_SCRIPT_EMOJI']}", style=discord.ButtonStyle.success)
 
             async def random_script_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(랜덤대본모달())
@@ -877,36 +877,39 @@ class 채널(commands.Cog):
             view.add_item(pick_button)
             view.add_item(google_button)
 
+            view.add_item(script_heart_button)
+            view.add_item(voice_user_list_button)
+            view.add_item(start_SC_button)
+            view.add_item(end_SC_button)
+            view.add_item(naver_button)
+
             view.add_item(lock_button)
             view.add_item(unlock_button)
             view.add_item(hide_button)
             view.add_item(unhide_button)
-            view.add_item(naver_button)
-
-            view.add_item(set_limit_button)
-            view.add_item(rename_button)
-            view.add_item(script_heart_button)
-            view.add_item(voice_user_list_button)
             view.add_item(youtube_button)
 
             #view.add_item(Script_search_button)
-            view.add_item(start_SC_button)
-            view.add_item(end_SC_button)
+            view.add_item(set_limit_button)
+            view.add_item(rename_button)
+
             # view.add_item(increase_limit_button)
             # view.add_item(decrease_limit_button)
             
 
-            await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.")
+            #await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.")
 
             embed_si = discord.Embed(
-                title="《 ឵ ឵឵ ឵ ឵឵음성채널 권한 부여 ឵ ឵឵ ឵ ឵឵ ឵》", description=f"{member.mention} 님이 사용한 음성채널 권한 ឵ ឵឵ ឵ ឵឵ ឵\n>>> 채널 관리 : ``채널명``, ``비트레이트``, ``인원``\n인원 관리 : ``사용자 음소거``, ``사용자 추방``, ``사용자 연결 끊기``", color=0xffff00)
-            embed_si.set_author(name=f"REC 음성채널 권한 안내'",
+                title="《 ឵ ឵឵ ឵ ឵឵음성채널 권한 부여 ឵ ឵឵ ឵ ឵឵ ឵》", description=f"{member.mention} 님이 사용 가능한 음성채널 권한 ឵ ឵឵ ឵ ឵឵ ឵\n>>> 채널 관리 : ``채널명``, ``비트레이트``, ``인원``\n인원 관리 : ``사용자 음소거``, ``사용자 추방``, ``사용자 연결 끊기``", color=0xffff00)
+            embed_si.set_author(name=f"REC 음성채널 권한 안내",
                                 icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed_si.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
             await member.send(embed=embed_si)
             await member.send(f"😸 소유하신 채팅 채널로 바로가기 -> <#{text_channel.id}>")
 
-            last_message = await text_channel.send(embed=embed, view=view)
+            last_message = await text_channel.send(content = 
+            f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.",
+             embed=embed, view=view)
 
             Channels[voice_channel.id] = {
                 "text_channel": text_channel,
