@@ -274,11 +274,11 @@ class 인원설정모달(discord.ui.Modal, title='인원설정'):
         await interaction.response.send_message(f"<:member:1006109383538790451>᲻|᲻최대 배우님의 정원이 변경 되었습니다. 현재 설정 된 인원 : ``{설정인원}`` 명")
 
 class 대본시작모달(discord.ui.Modal, title='대본시작'):
-    시간설정 = discord.ui.TextInput(
-        label='초(sec) 단위로 시간을 설정합니다. ex)120 = 2분', style=discord.TextStyle.short, default = "0")
-
     대본 = discord.ui.TextInput(
         label='대본 아이디 혹은 대본 링크를 넣어주세요.', style=discord.TextStyle.long)
+
+    시간설정 = discord.ui.TextInput(
+        label='초(sec) 단위로 시간을 설정합니다. ex)120 = 2분', style=discord.TextStyle.short, default = "0")
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
@@ -313,9 +313,9 @@ class 대본시작모달(discord.ui.Modal, title='대본시작'):
         if 설정시간 == 0:
             if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
                 await interaction.channel.send(embed=embed_time)
-                await interaction.channel.send(content = f"시작 되는 대본은 아래와 같습니다.", embed = tmp_embed)
+                await interaction.channel.send(content = f"<@&{config['ACTOR_ROLE_ID']}> 곧 시작 되는 대본은 아래와 같습니다.", embed = tmp_embed)
             else:
-                await interaction.channel.send(f"> 대본이 시작됩니다. <@&{config['ACTOR_ROLE_ID']}>\n └ 시작 되는 대본 : {현재대본}", embed=embed_time)
+                await interaction.channel.send(f"> 대본이 시작됩니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.\n └ 시작 되는 대본 : {현재대본}", embed=embed_time)
 
             return
 
@@ -339,11 +339,11 @@ class 대본시작모달(discord.ui.Modal, title='대본시작'):
             await asyncio.sleep(설정시간)
             if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
                 await interaction.channel.send(embed=embed_time)
-                await interaction.channel.send(f"> {설정시간}초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}>\n └ 대본 ID : {현재대본}", embed = tmp_embed)
+                await interaction.channel.send(f"> ``{설정시간}`` 초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.\n └ 대본 ID : {현재대본}", embed = tmp_embed)
 
             else:
                 await interaction.channel.send(embed=embed_time)
-                await interaction.channel.send(content = f"시작 되는 대본은 아래와 같습니다.\n{현재대본}")
+                await interaction.channel.send(content = f"<@&{config['ACTOR_ROLE_ID']}> 곧 시작 되는 대본은 아래와 같습니다.\n{현재대본}")
 
 class 뽑기모달(discord.ui.Modal, title='뽑기'):
     뽑기 = discord.ui.TextInput(
@@ -661,7 +661,7 @@ class 채널(commands.Cog):
                 view.add_item(ending_button)
 
                 open_actor = f"{interaction.user.mention}"
-                await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
+                await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
 
             gather_button.callback = gather_button_callback
 
@@ -858,9 +858,9 @@ class 채널(commands.Cog):
                 Channels[interaction.user.voice.channel.id]["is_reading"] = False
                 if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
                     heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(Channels[interaction.user.voice.channel.id]["reading_script"])
-                    await interaction.response.send_message("대본을 종료하였습니다.", embed = heart_embed, view = heart_view)
+                    await interaction.response.send_message(f"<@&{config['ACTOR_ROLE_ID']}> 대본이 종료 되었습니다.", embed = heart_embed, view = heart_view)
                 else:
-                    await interaction.response.send_message("대본을 종료하였습니다.")
+                    await interaction.response.send_message(f"<@&{config['ACTOR_ROLE_ID']}> 대본이 종료 되었습니다.")
 
             end_SC_button.callback = end_SC_button_callback
 
@@ -896,7 +896,7 @@ class 채널(commands.Cog):
             # view.add_item(decrease_limit_button)
             
 
-            await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}>")
+            await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.")
 
             embed_si = discord.Embed(
                 title="《 ឵ ឵឵ ឵ ឵឵음성채널 권한 부여 ឵ ឵឵ ឵ ឵឵ ឵》", description=f"{member.mention} 님이 사용한 음성채널 권한 ឵ ឵឵ ឵ ឵឵ ឵\n>>> 채널 관리 : ``채널명``, ``비트레이트``, ``인원``\n인원 관리 : ``사용자 음소거``, ``사용자 추방``, ``사용자 연결 끊기``", color=0xffff00)

@@ -82,11 +82,10 @@ class 유틸(commands.Cog):
 
         await asyncio.sleep(초)
         if not 맨션:
-            await interaction.channel.send(f"> {초}초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed_time)
+            await interaction.channel.send(f"> {초}초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.", embed=embed_time)
         else:
             await interaction.channel.send(f"> {초}초가 경과 했습니다.", embed=embed_time)
-
-
+    
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
         유틸(bot),
