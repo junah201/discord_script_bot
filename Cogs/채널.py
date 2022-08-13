@@ -1,3 +1,5 @@
+from code import interact
+from time import sleep
 from unicodedata import name
 import discord
 from discord import app_commands
@@ -904,12 +906,14 @@ class 채널(commands.Cog):
             embed_si.set_author(name=f"REC 음성채널 권한 안내",
                                 icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed_si.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
-            await member.send(embed=embed_si)
-            await member.send(f"😸 소유하신 채팅 채널로 바로가기 -> <#{text_channel.id}>")
+            
+            try:
+                await member.send(content=f"😸 소유하신 채팅 채널로 바로가기 -> <#{text_channel.id}>", embed=embed_si)
+            except:
+                await text_channel.send(content=f"😸 {member.mention}님은 개인멘션을 닫아 두셨기에 소유하신 채팅로 해당 메세지가 출력됩니다.", embed=embed_si)
 
-            last_message = await text_channel.send(content = 
-            f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.",
-             embed=embed, view=view)
+            await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널이 생성 되었습니다. <@&{config['ACTOR_ROLE_ID']}> 께서는 이 곳 비밀 채팅을 이용해 주시길 바랍니다.")
+            last_message = await text_channel.send(embed=embed, view=view)
 
             Channels[voice_channel.id] = {
                 "text_channel": text_channel,
@@ -935,6 +939,7 @@ class 채널(commands.Cog):
         #channel_id는 config에서 설정한 대본방을 생성하는 음성채널이다.  category_id는 config에서 설정한 대본방 전체 카테고리이다.
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
+            await asyncio.sleep(2.5)
             await Channels[before.channel.id]["text_channel"].delete()
             await before.channel.delete()
             Channels.pop(before.channel.id)

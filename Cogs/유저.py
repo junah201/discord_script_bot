@@ -12,7 +12,6 @@ import re
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
-
 async def 취향저격추가(유저: discord.Member, interaction: discord.Interaction, self):
     if 유저.id == interaction.user.id:
         # ↓↓↓ 연가람이 메시지 적음
@@ -54,12 +53,19 @@ async def 취향저격추가(유저: discord.Member, interaction: discord.Intera
 
     await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
 
-    await user.send(f"알 수 없는 누군가가 당신을 추천했습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)")
+    try:    
+        await user.send(f"알 수 없는 누군가가 당신에게 __취향저격__ 하트를 보냈습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)")
 
-    if users_data[str(user.id)]['grade'] in [1, 10, 50, 100]:
+    except:
+        await interaction.channel.send(f"```{user.name}님께서 개인 멘션을 닫아 두셨기 때문에 이곳으로 채팅이 도착했습니다.```\n알 수 없는 누군가가 {user.mention}님에게 취향저격 하트를 보냈습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)")
+    #1 : 신인 배우 , 10 : 조연 배우, 20 : 유명 배우, 30 : 대세 배우, 40 : 주연 배우, 50 : 탑배우
+    if users_data[str(user.id)]['grade'] in [1, 10, 20, 30, 40, 50]:
         member = await interaction.guild.fetch_member(user.id)
-        role = interaction.guild.get_role(
-            config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
+        for grade in [1, 10, 20, 30, 40, 50]:
+            role = discord.utils.get(member.guild.roles, id=config['ROLE_ID'][str(grade)])
+            if role in member.roles:
+                await member.remove_roles(role)
+        role = interaction.guild.get_role(config['ROLE_ID'][str(users_data[str(user.id)]['grade'])])
         await member.add_roles(role)
 
     try:
