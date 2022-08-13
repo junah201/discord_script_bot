@@ -118,7 +118,7 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
         script = script_data[script_list[str(id)]['type']][str(id)]
 
         if script['rating'] == 0:
-            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"__{script['link']}__", color=0xff8671)  
+            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)  
             embed.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
             embed.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
@@ -127,7 +127,7 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
 
         
         else:
-            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"__{script['link']}__", color=0xff8671)  
+            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)  
             embed.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
             embed.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
@@ -916,7 +916,8 @@ class 채널(commands.Cog):
                 "last_message": last_message,
                 "is_reading" : False,
                 "reading_script" : None,
-                "reading_script_type" : None
+                "reading_script_type" : None,
+                "last_time" : datetime.datetime.now()
                 }
 
             while True:
@@ -939,13 +940,18 @@ class 채널(commands.Cog):
             Channels.pop(before.channel.id)
 
         if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
+            print(Channels)
+            time_delta = (datetime.datetime.now() - Channels[after.channel.id]["last_time"]).seconds
+
             await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
             if Channels[after.channel.id]["is_reading"] != None and Channels[after.channel.id]["is_reading"]:
                 if Channels[after.channel.id]["reading_script_type"] == "id":
-                    await Channels[after.channel.id]["text_channel"].send(content = f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.", embed = 대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
+                    await Channels[after.channel.id]["text_channel"].send(content = 
+                    f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60}분 {time_delta % 60} 초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》", embed = 대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
                 elif Channels[after.channel.id]["reading_script_type"] == "link":
-                    await Channels[after.channel.id]["text_channel"].send(content = f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}")
+                    await Channels[after.channel.id]["text_channel"].send(content = 
+                    f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60} 분 {time_delta % 60}초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》")
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.id != channel_id:
 
