@@ -12,6 +12,77 @@ import re
 with open(f"config.json", "r", encoding="utf-8-sig") as json_file:
     config = json.load(json_file)
 
+async def 명령어점수(유저: discord.Member, interaction: discord.Interaction, self):
+    with open(f"./DB/User/users.json", "r", encoding="utf-8-sig") as json_file:
+        users_data = json.load(json_file)
+
+    if users_data.get(str(interaction.user.id)) != None:
+         users_data[str(interaction.user.id)]["last_evaluate"] = datetime.datetime.now(
+        ).strftime("%Y-%m-%d")
+    
+    else:
+        users_data[str(interaction.user.id)] = {
+            "name": interaction.user.name,
+            "grade": 0,
+            "command_point": 0,
+            "last_evaluate": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "review": {},
+            "warning": 0
+        }
+
+    if users_data.get(str(interaction.user.id)) == None:
+        users_data[str(interaction.user.id)] = {
+            "name": interaction.user.name,
+            "grade": 0,
+            "command_point": 0,
+            "last_evaluate": "미평가",
+            "review": {},
+            "warning": 0
+        }
+
+    users_data[str(interaction.user.id)]['command_point'] += 1
+
+    
+
+    with open(f"./DB/User/users.json", "w", encoding="utf-8-sig") as json_file:
+        json.dump(users_data, json_file, indent=4)
+    
+    if users_data[str(interaction.user.id)]['command_point'] in [1, 10, 50, 100, 150, 200, 300]:
+        # member = await interaction.guild.fetch_member(interaction.user.id)
+        # for point in [1, 2, 10, 100, 200, 300, 400, 500]:
+        #     point_value = users_data[str(interaction.user.id)]['command_point'][str(point)]
+        #     if point_value in [1, 2, 10, 100, 200, 300, 400, 500]:
+
+        await interaction.channel.send(f"{interaction.user.mention}님의 노고에 감사드립니다! (하트 수 : `{users_data[str(interaction.user.id)]['command_point'] - 1} -> {users_data[str(interaction.user.id)]['command_point']}`)")
+
+    #1 : 신인 배우 , 10 : 조연 배우, 20 : 유명 배우, 30 : 대세 배우, 40 : 주연 배우, 50 : 탑배우
+    if users_data[str(interaction.user.id)]['command_point'] in [1, 10, 50, 100, 150, 200, 300]:
+        member = await interaction.guild.fetch_member(interaction.user.id)
+        for grade in [1, 10, 50, 100, 150, 200, 300]:
+            role = discord.utils.get(member.guild.roles, id=config['ROLE_ID2'][str(grade)])
+            if role in member.roles:
+                await member.remove_roles(role)
+        role = interaction.guild.get_role(config['ROLE_ID2'][str(users_data[str(interaction.user.id)]['command_point'])])
+        await member.add_roles(role)
+
+    # try:
+        channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
+        # print(interaction.user)
+        # print(interaction.user.id)
+        # print(interaction.channel)
+        # print(interaction.channel.id)
+        log_embed = discord.Embed(
+            title="[유저활동점수]", description=
+            f"""사용자 : `{interaction.user.name}({interaction.user.id}`)\n
+            채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n
+            대상 : `{interaction.user.name} ({interaction.user.id}`)\n
+            점수 : `{users_data[str(interaction.user.id)]['command_point'] - 1} -> {users_data[str(interaction.user.id)]['command_point']}`\n
+            시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`""")
+        await channel.send(embed=log_embed)
+    # except Exception as e:
+    #     print("[유저활동점수] error 발생")
+    #     print(e)
+
 async def 취향저격추가(유저: discord.Member, interaction: discord.Interaction, self):
     if 유저.id == interaction.user.id:
         # ↓↓↓ 연가람이 메시지 적음
@@ -31,6 +102,7 @@ async def 취향저격추가(유저: discord.Member, interaction: discord.Intera
         users_data[str(interaction.user.id)] = {
             "name": interaction.user.name,
             "grade": 0,
+            "command_point": 0,
             "last_evaluate": datetime.datetime.now().strftime("%Y-%m-%d"),
             "review": {},
             "warning": 0
@@ -41,6 +113,7 @@ async def 취향저격추가(유저: discord.Member, interaction: discord.Intera
         users_data[str(user.id)] = {
             "name": interaction.user.name,
             "grade": 0,
+            "command_point": 0,
             "last_evaluate": "미평가",
             "review": {},
             "warning": 0
@@ -52,12 +125,18 @@ async def 취향저격추가(유저: discord.Member, interaction: discord.Intera
         json.dump(users_data, json_file, indent=4)
 
     await interaction.response.send_message(f"{user.mention}님의 평가가 완료되었습니다.", ephemeral=True)
+    # user = interaction.guild.members
+    # await 명령어점수(user, interaction, self)
+    user_se = interaction.guild.members
+    await 명령어점수(user_se, interaction, self)
 
     try:    
         await user.send(f"알 수 없는 누군가가 당신에게 __취향저격__ 하트를 보냈습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)")
 
     except:
-        await interaction.channel.send(f"```{user.name}님께서 개인 멘션을 닫아 두셨기 때문에 이곳으로 채팅이 도착했습니다.```\n알 수 없는 누군가가 {user.mention}님에게 취향저격 하트를 보냈습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)")
+        await interaction.channel.send(f"""```{user.name}님께서 개인 멘션을 닫아 두셨기 때문에 이곳으로 채팅이 도착했습니다.```\n
+        알 수 없는 누군가가 {user.mention}님에게 취향저격 하트를 보냈습니다. (하트 수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`)""")
+
     #1 : 신인 배우 , 10 : 조연 배우, 20 : 유명 배우, 30 : 대세 배우, 40 : 주연 배우, 50 : 탑배우
     if users_data[str(user.id)]['grade'] in [1, 10, 20, 30, 40, 50]:
         member = await interaction.guild.fetch_member(user.id)
@@ -71,7 +150,8 @@ async def 취향저격추가(유저: discord.Member, interaction: discord.Intera
     try:
         channel = await self.bot.fetch_channel(config['LOG_CHANNEL'])
         log_embed = discord.Embed(
-            title="[유저평가]", description=f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 : {interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
+            title="[유저평가]", description=
+            f"사용자 : `{interaction.user.name}({interaction.user.id})`\n채널 :{interaction.channel.mention} (`{interaction.channel.id}`)\n대상 : `{user.name} ({user.id})`\n점수 : `{users_data[str(user.id)]['grade'] - 1} -> {users_data[str(user.id)]['grade']}`\n시간 : `({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})`")
         await channel.send(embed=log_embed)
     except Exception as e:
         print("[유저평가] error 발생")
