@@ -82,25 +82,22 @@ class 대본모달(discord.ui.Modal, title='대본'):
         view.add_item(delete_button)
 
         await interaction.response.send_message(embed=embed, view=view)
-        user = interaction.guild.members
-        await 명령어점수(user, interaction, self)
+        await 명령어점수(interaction, self)
+
 
 class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
     남 = discord.ui.TextInput(
         label='남', style=discord.TextStyle.short, max_length=2)
     여 = discord.ui.TextInput(
         label='여', style=discord.TextStyle.short, max_length=2)
-    #카테고리 = discord.ui.TextInput(
-    #    label='카테고리(0 : 전체, 1 : 애니, 2 : 영화&드라마, 3 : 라디오 드라마)', style=discord.TextStyle.short, max_length=2)
 
-    카테고리 = discord.ui.Select()
-    for type in ["애니", "영화&드라마", "라디오 드라마"]:
-        카테고리.add_option(label=type)
+    # for type in ["애니", "영화&드라마", "라디오 드라마"]:
+    #     카테고리.add_option(label=type, value=type)
+    # 카테고리.append_option(discord.SelectOption(label=type))
 
     async def on_submit(self, interaction: discord.Interaction):
         self.남 = int(self.남.value)
         self.여 = int(self.여.value)
-        self.카테고리 = self.카테고리.values[0]
 
         datas = {}
 
@@ -110,11 +107,13 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
             if len(file) == 11 and int(file[0]) <= self.남 and int(file[2]) <= self.여 and int(file[0]) + int(file[2]) + int(file[4]) == self.남 + self.여:
                 with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
                     tmp = json.load(json_file)
-                    if tmp.get(self.카테고리):
-                        datas.update(tmp.get(self.카테고리))
+                    for 카테고리 in ["애니", "영화&드라마", "라디오 드라마"]:
+                        if tmp.get(카테고리):
+                            datas.update(tmp.get(카테고리))
 
         id = random.choice(list(datas.keys()))
 
+        print(1)
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             script_list = json.load(json_file)
 
@@ -123,29 +122,38 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
 
         script = script_data[script_list[str(id)]['type']][str(id)]
 
+        print(1)
+        print(1)
         if script['rating'] == 0:
-            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)  
-            embed.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed = discord.Embed(
+                title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)
+            embed.set_author(name=f'RANDOM 대본!!!!',
+                             icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
-            embed.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
-            embed.add_field(name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
-            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png", text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
+            embed.add_field(
+                name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
+            embed.add_field(
+                name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
+            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png",
+                             text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
 
-        
         else:
-            embed = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)  
-            embed.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed = discord.Embed(
+                title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)
+            embed.set_author(name=f'RANDOM 대본!!!!',
+                             icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
-            embed.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
-            embed.add_field(name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
-            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png", text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
-        #else:
-        #    embed = discord.Embed(
-        #        title=f"{script_list[str(id)]['name']}", description=f"종류 : {script_list[str(id)]['type']}\n성별 : {script_list[str(id)]['gender']}\n링크 : {script['link']}\n평점 : {round(script['rating']/script['rating_users'], 1)}점 ({script['rating_users']}명)\n추가자 : {script['adder']} ({script['adder_id']})\n추가 시간 : {script['time']}", color=0xff8671)
+            embed.add_field(
+                name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
+            embed.add_field(
+                name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
+            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png",
+                             text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
 
+        print(1)
         await interaction.response.send_message(embed=embed)
-        user = interaction.guild.members
-        await 명령어점수(user, interaction, self)
+        await 명령어점수(interaction, self)
+
 
 '''
         datas = {}
@@ -196,16 +204,17 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
 #         return False
 #     return True
 
+
 class 대본하트모달(discord.ui.Modal, title='대본하트'):
     대본아이디 = discord.ui.TextInput(
         label='대본아이디', style=discord.TextStyle.short, max_length=4)
 
     async def on_submit(self, interaction: discord.Interaction):
-        heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(id = self.대본아이디.value)
+        heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(id=self.대본아이디.value)
 
         await interaction.response.send_message(embed=heart_embed, view=heart_view)
-        user = interaction.guild.members
-        await 명령어점수(user, interaction, self)
+        await 명령어점수(interaction, self)
+
 
 class 대본검색모달(discord.ui.Modal, title='대본검색'):
     대본검색 = discord.ui.TextInput(
@@ -282,12 +291,13 @@ class 인원설정모달(discord.ui.Modal, title='인원설정'):
         await interaction.user.voice.channel.edit(user_limit=설정인원)
         await interaction.response.send_message(f"<:member:1006109383538790451>᲻|᲻최대 배우님의 정원이 변경 되었습니다. 현재 설정 된 인원 : ``{설정인원}`` 명")
 
+
 class 대본시작모달(discord.ui.Modal, title='대본시작'):
     대본 = discord.ui.TextInput(
         label='대본 아이디 혹은 대본 링크를 넣어주세요.', style=discord.TextStyle.long)
 
     시간설정 = discord.ui.TextInput(
-        label='초(sec) 단위로 시간을 설정합니다. ex)120 = 2분', style=discord.TextStyle.short, default = "0")
+        label='초(sec) 단위로 시간을 설정합니다. ex)120 = 2분', style=discord.TextStyle.short, default="0")
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
@@ -297,23 +307,23 @@ class 대본시작모달(discord.ui.Modal, title='대본시작'):
         현재대본 = self.대본.value
 
         Channels[interaction.user.voice.channel.id]["is_reading"] = True
-        
+
         try:
-            Channels[interaction.user.voice.channel.id]["reading_script"] = int(현재대본)
+            Channels[interaction.user.voice.channel.id]["reading_script"] = int(
+                현재대본)
             Channels[interaction.user.voice.channel.id]["reading_script_type"] = "id"
         except:
             Channels[interaction.user.voice.channel.id]["reading_script"] = 현재대본
             Channels[interaction.user.voice.channel.id]["reading_script_type"] = "link"
 
         if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
-            tmp_embed = 대본시작_엠바드_생성(id = Channels[interaction.user.voice.channel.id]["reading_script"])
-            await interaction.response.send_message(content = f"대본 ID {현재대본} 으로 대본이 설정 되었습니다.")
-            user = interaction.guild.members
-            await 명령어점수(user, interaction, self)
+            tmp_embed = 대본시작_엠바드_생성(
+                id=Channels[interaction.user.voice.channel.id]["reading_script"])
+            await interaction.response.send_message(content=f"대본 ID {현재대본} 으로 대본이 설정 되었습니다.")
+            await 명령어점수(interaction, self)
         elif Channels[interaction.user.voice.channel.id]["reading_script_type"] == "link":
-            await interaction.response.send_message(content = f"아래 대본으로 설정 되었습니다.\n\n{현재대본}")
-            user = interaction.guild.members
-            await 명령어점수(user, interaction, self)
+            await interaction.response.send_message(content=f"아래 대본으로 설정 되었습니다.\n\n{현재대본}")
+            await 명령어점수(interaction, self)
 
         embed_time = discord.Embed(
             title="< 예약된 알림 >", description=f"잠시 후 대본 리딩이 시작 됩니다.", timestamp=datetime.datetime.now(), color=0xFFFF00)
@@ -327,7 +337,7 @@ class 대본시작모달(discord.ui.Modal, title='대본시작'):
         if 설정시간 == 0:
             if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
                 await interaction.channel.send(embed=embed_time)
-                await interaction.channel.send(content = f"<@&{config['ACTOR_ROLE_ID']}> 곧 시작 되는 대본은 아래와 같습니다.", embed = tmp_embed)
+                await interaction.channel.send(content=f"<@&{config['ACTOR_ROLE_ID']}> 곧 시작 되는 대본은 아래와 같습니다.", embed=tmp_embed)
             else:
                 await interaction.channel.send(f"> 대본이 시작됩니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.\n └ 시작 되는 대본 : {현재대본}", embed=embed_time)
 
@@ -350,15 +360,15 @@ class 대본시작모달(discord.ui.Modal, title='대본시작'):
 
             await interaction.channel.send(embed=embed)
 
-
             await asyncio.sleep(설정시간)
             if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
                 await interaction.channel.send(embed=embed_time)
-                await interaction.channel.send(f"> ``{설정시간}`` 초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.\n └ 대본 ID : {현재대본}", embed = tmp_embed)
+                await interaction.channel.send(f"> ``{설정시간}`` 초가 경과 했습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.\n └ 대본 ID : {현재대본}", embed=tmp_embed)
 
             else:
                 await interaction.channel.send(embed=embed_time)
-                await interaction.channel.send(content = f"<@&{config['ACTOR_ROLE_ID']}> 곧 시작 되는 대본은 아래와 같습니다.\n{현재대본}")
+                await interaction.channel.send(content=f"<@&{config['ACTOR_ROLE_ID']}> 곧 시작 되는 대본은 아래와 같습니다.\n{현재대본}")
+
 
 class 뽑기모달(discord.ui.Modal, title='뽑기'):
     뽑기 = discord.ui.TextInput(
@@ -388,8 +398,8 @@ class 뽑기모달(discord.ui.Modal, title='뽑기'):
                             value=f"*{user}* 님은 : [⠀⠀⠀⠀⠀__**{num}**__⠀⠀⠀⠀⠀]     번 입니다.", inline=False)
 
         await interaction.response.send_message(embed=embed)
-        user = interaction.guild.members
-        await 명령어점수(user, interaction, self)
+        await 명령어점수(interaction, self)
+
 
 class 채널(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -401,7 +411,7 @@ class 채널(commands.Cog):
         member: discord.Member,
         before: discord.VoiceState,
         after: discord.VoiceState,
-        ):
+    ):
         global Channels
 
         if member.bot:
@@ -409,54 +419,56 @@ class 채널(commands.Cog):
 
         channel_id = config["GENERATOR_CHANNEL_ID"]
         category_id = config["GENERATOR_CATEGORY_ID"]
-         
+
         if before.channel == after.channel:
             return
 
         if after.channel != None and after.channel.id == channel_id:
-            member_view_role = discord.utils.get(member.guild.roles, id=config["READING_CHANNEL_VIEW_ID"])
+            member_view_role = discord.utils.get(
+                member.guild.roles, id=config["READING_CHANNEL_VIEW_ID"])
 
             voice_channel = await after.channel.guild.create_voice_channel(name=f"{member.name} 님의 대본방", category=after.channel.category,
-            overwrites={
-                member: discord.PermissionOverwrite(manage_channels=True, connect=True, mute_members=True, kick_members=True, deafen_members=True),
-                member_view_role: discord.PermissionOverwrite(view_channel=True),
-                member.guild.default_role: discord.PermissionOverwrite(view_channel=False)
+                                                                           overwrites={
+                                                                               member: discord.PermissionOverwrite(manage_channels=True, connect=True, mute_members=True, kick_members=True, deafen_members=True),
+                                                                               member_view_role: discord.PermissionOverwrite(view_channel=True),
+                                                                               member.guild.default_role: discord.PermissionOverwrite(
+                                                                                   view_channel=False)
 
-            })
+                                                                           })
             await member.move_to(voice_channel)
 
             # overwrites={
             #     member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),member.guild.default_role: discord.PermissionOverwrite( view_channel=False)})
 
             replace_dict = {
-            "A" : "𝙰",
-            "B" : "𝙱",
-            "C" : "𝙲",
-            "D" : "𝙳",
-            "E" : "𝙴",
-            "F" : "𝙵",
-            "F" : "𝙶",
-            "H" : "𝙷",
-            "I" : "𝙸",
-            "J" : "𝙹",
-            "K" : "𝙺",
-            "L" : "𝙻",
-            "M" : "𝙼",
-            "N" : "𝙽",
-            "O" : "𝙾",
-            "P" : "𝙿",
-            "Q" : "𝚀",
-            "R" : "𝚁",
-            "S" : "𝚂",
-            "T" : "𝚃",
-            "U" : "𝚄",
-            "V" : "𝚅",
-            "W" : "𝚆",
-            "X" : "𝚇",
-            "Y" : "𝚈",
-            "Z" : "𝚉",
-            " " : "᲻",
-            "|" : "l",
+                "A": "𝙰",
+                "B": "𝙱",
+                "C": "𝙲",
+                "D": "𝙳",
+                "E": "𝙴",
+                "F": "𝙵",
+                "F": "𝙶",
+                "H": "𝙷",
+                "I": "𝙸",
+                "J": "𝙹",
+                "K": "𝙺",
+                "L": "𝙻",
+                "M": "𝙼",
+                "N": "𝙽",
+                "O": "𝙾",
+                "P": "𝙿",
+                "Q": "𝚀",
+                "R": "𝚁",
+                "S": "𝚂",
+                "T": "𝚃",
+                "U": "𝚄",
+                "V": "𝚅",
+                "W": "𝚆",
+                "X": "𝚇",
+                "Y": "𝚈",
+                "Z": "𝚉",
+                " ": "᲻",
+                "|": "l",
             }
 
             replaced_name = []
@@ -467,14 +479,15 @@ class 채널(commands.Cog):
                     replaced_name.append(i)
 
             # .replace("ANC | ", "𝙰𝙽𝙲᲻l᲻")
-            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{''.join(replaced_name)}᲻님의᲻대본방", category=after.channel.category,   
-            overwrites={
-                member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),
-                member.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=False)
-            })
+            text_channel = await after.channel.guild.create_text_channel(name=f"🌽᲻{''.join(replaced_name)}᲻님의᲻대본방", category=after.channel.category,
+                                                                         overwrites={
+                                                                             member: discord.PermissionOverwrite(manage_channels=True, view_channel=True),
+                                                                             member.guild.default_role: discord.PermissionOverwrite(
+                                                                                 view_channel=False)
+                                                                         })
 
-            embed = discord.Embed(description= "🟢 초록색 버튼 : 모든 유저가 사용 가능한 명령어\n🔵 파란색 버튼 : 음성채널 생성자만 사용 가능한 명령어", color=0xFFFF00)
+            embed = discord.Embed(
+                description="🟢 초록색 버튼 : 모든 유저가 사용 가능한 명령어\n🔵 파란색 버튼 : 음성채널 생성자만 사용 가능한 명령어", color=0xFFFF00)
             # embed.add_field(
             #     name="모여", value="대배우 역할을 가진 유저들을 맨션하여 리딩을 시작", inline=False)
             # embed.add_field(
@@ -553,7 +566,6 @@ class 채널(commands.Cog):
                     # await interaction.channel.send(f"{interaction.user.mention}님이 참여하셨습니다")
 
                     await interaction.response.edit_message(embed=embed, view=view)
-
 
                 join_button.callback = join_button_callback
                 view.add_item(join_button)
@@ -680,10 +692,8 @@ class 채널(commands.Cog):
 
                 open_actor = f"{interaction.user.mention}"
 
-                user = interaction.guild.members
-                
                 await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
-                await 명령어점수(user, interaction, self)
+                await 명령어점수(interaction, self)
 
             gather_button.callback = gather_button_callback
 
@@ -829,7 +839,7 @@ class 채널(commands.Cog):
 
             # 취향저격
             voice_user_list_button = discord.ui.Button(
-                emoji=f"{config['SERVER_EMOJI']['USER_HEART_EMOJI']}", style=discord.ButtonStyle.success )
+                emoji=f"{config['SERVER_EMOJI']['USER_HEART_EMOJI']}", style=discord.ButtonStyle.success)
 
             async def voice_user_list_button_callback(interaction: discord.Interaction):
                 users_view = discord.ui.View()
@@ -846,7 +856,7 @@ class 채널(commands.Cog):
                     user = members[int(users_selects.values[0][0]) - 1]
 
                     await 취향저격추가(user, interaction, self)
-                    
+
                 users_selects.callback = select_callback
 
                 users_view.add_item(users_selects)
@@ -869,12 +879,12 @@ class 채널(commands.Cog):
                 global Channels2
 
                 Channels2[voice_channel.id] = {
-                "text_channel": text_channel,
-                "last_message": last_message,
-                "is_reading" : False,
-                "reading_script" : None,
-                "reading_script_type" : None,
-                "start_time" : datetime.datetime.now()
+                    "text_channel": text_channel,
+                    "last_message": last_message,
+                    "is_reading": False,
+                    "reading_script": None,
+                    "reading_script_type": None,
+                    "start_time": datetime.datetime.now()
                 }
                 await interaction.response.send_modal(대본시작모달())
             start_SC_button.callback = start_SC_button_callback
@@ -887,12 +897,12 @@ class 채널(commands.Cog):
                 global Channels2
                 if Channels[interaction.user.voice.channel.id].get("is_reading") == None or Channels[interaction.user.voice.channel.id]["is_reading"] == False:
                     return await interaction.response.send_message("진행 중인 대본이 없습니다.")
-                
 
                 Channels[interaction.user.voice.channel.id]["is_reading"] = False
                 if Channels[interaction.user.voice.channel.id]["reading_script_type"] == "id":
-                    heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(Channels[interaction.user.voice.channel.id]["reading_script"])
-                    await interaction.response.send_message(f"<@&{config['ACTOR_ROLE_ID']}> 대본이 종료 되었습니다.", embed = heart_embed, view = heart_view)
+                    heart_embed, heart_view = 대본하트_엠바드_및_뷰_생성(
+                        Channels[interaction.user.voice.channel.id]["reading_script"])
+                    await interaction.response.send_message(f"<@&{config['ACTOR_ROLE_ID']}> 대본이 종료 되었습니다.", embed=heart_embed, view=heart_view)
                 else:
                     await interaction.response.send_message(f"<@&{config['ACTOR_ROLE_ID']}> 대본이 종료 되었습니다.")
 
@@ -904,7 +914,7 @@ class 채널(commands.Cog):
             async def random_script_button_callback(interaction: discord.Interaction):
                 await interaction.response.send_modal(랜덤대본모달())
             random_script_button.callback = random_script_button_callback
-            
+
             view.add_item(gather_button)
             view.add_item(script_button)
             view.add_item(random_script_button)
@@ -923,21 +933,20 @@ class 채널(commands.Cog):
             view.add_item(unhide_button)
             view.add_item(youtube_button)
 
-            #view.add_item(Script_search_button)
+            # view.add_item(Script_search_button)
             view.add_item(set_limit_button)
             view.add_item(rename_button)
             # view.add_item(increase_limit_button)
             # view.add_item(decrease_limit_button)
-            
 
-            #await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.")
+            # await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.")
 
             embed_si = discord.Embed(
                 title="《 ឵ ឵឵ ឵ ឵឵음성채널 권한 부여 ឵ ឵឵ ឵ ឵឵ ឵》", description=f"{member.mention} 님이 사용 가능한 음성채널 권한 ឵ ឵឵ ឵ ឵឵ ឵\n>>> 채널 관리 : ``채널명``, ``비트레이트``, ``인원``\n인원 관리 : ``사용자 음소거``, ``사용자 추방``, ``사용자 연결 끊기``", color=0xffff00)
             embed_si.set_author(name=f"REC 음성채널 권한 안내",
                                 icon_url="https://i.imgur.com/JGSMPZ4.png")
             embed_si.set_thumbnail(url="https://i.imgur.com/L1VJKG5.png")
-            
+
             try:
                 await member.send(content=f"😸 소유하신 채팅 채널로 바로가기 -> <#{text_channel.id}>", embed=embed_si)
             except:
@@ -949,12 +958,12 @@ class 채널(commands.Cog):
             Channels[voice_channel.id] = {
                 "text_channel": text_channel,
                 "last_message": last_message,
-                "is_reading" : False,
-                "reading_script" : None,
-                "reading_script_type" : None,
-                "start_time" : datetime.datetime.now(),
-                "member.name" : {member.name}
-                }
+                "is_reading": False,
+                "reading_script": None,
+                "reading_script_type": None,
+                "start_time": datetime.datetime.now(),
+                "member.name": {member.name}
+            }
 
             while True:
                 try:
@@ -964,13 +973,12 @@ class 채널(commands.Cog):
                     Channels[voice_channel.id]["last_message"] = await text_channel.send(embed=embed, view=view)
                     await asyncio.sleep(10)
 
-
         # if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
         #     await Channels[after.channel.id]["text_channel"].set_permissions(member, view_channel=True)
         #     await text_channel.send("하이")
-            #if before.channel is None and after.channel is not None:
+            # if before.channel is None and after.channel is not None:
 
-        #channel_id는 config에서 설정한 대본방을 생성하는 음성채널이다.  category_id는 config에서 설정한 대본방 전체 카테고리이다.
+        # channel_id는 config에서 설정한 대본방을 생성하는 음성채널이다.  category_id는 config에서 설정한 대본방 전체 카테고리이다.
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
             await asyncio.sleep(2.5)
@@ -979,18 +987,17 @@ class 채널(commands.Cog):
             Channels.pop(before.channel.id)
 
         if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
-            #print(Channels)
-            
+            # print(Channels)
+
             await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
             if Channels[after.channel.id]["is_reading"] != None and Channels[after.channel.id]["is_reading"]:
-                time_delta = (datetime.datetime.now() - Channels2[after.channel.id]["start_time"]).seconds
+                time_delta = (datetime.datetime.now() -
+                              Channels2[after.channel.id]["start_time"]).seconds
                 if Channels[after.channel.id]["reading_script_type"] == "id":
-                    await Channels[after.channel.id]["text_channel"].send(content = 
-                    f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60}분 {time_delta % 60} 초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》", embed = 대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
+                    await Channels[after.channel.id]["text_channel"].send(content=f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60}분 {time_delta % 60} 초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》", embed=대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
                 elif Channels[after.channel.id]["reading_script_type"] == "link":
-                    await Channels[after.channel.id]["text_channel"].send(content = 
-                    f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60} 분 {time_delta % 60}초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》")
+                    await Channels[after.channel.id]["text_channel"].send(content=f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60} 분 {time_delta % 60}초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》")
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.id != channel_id:
             try:
@@ -999,7 +1006,6 @@ class 채널(commands.Cog):
             except Exception as e:
                 print(e)
                 print(Channels)
-
 
 
 async def setup(bot: commands.Bot) -> None:
