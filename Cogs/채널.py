@@ -90,13 +90,14 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
         label='남', style=discord.TextStyle.short, max_length=2)
     여 = discord.ui.TextInput(
         label='여', style=discord.TextStyle.short, max_length=2)
-    category_script = discord.ui.TextInput(
-        label='카테고리(0 : 전체, 1: 애니, 2: 영화&드라마, 3 : 라디오 드라마)', style=discord.TextStyle.short, max_length=7)
+    # category_script = discord.ui.TextInput(
+    #     label='카테고리(0 : 전체, 1: 애니, 2: 영화&드라마, 3 : 라디오 드라마)', style=discord.TextStyle.short, max_length=7)
+
 
     async def on_submit(self, interaction: discord.Interaction):
         self.남 = int(self.남.value)
         self.여 = int(self.여.value)
-        self.category_script = self.category_script.value
+        #self.category_script = self.category_script.value
 
         datas = {}
 
@@ -429,6 +430,7 @@ class 채널(commands.Cog):
         if before.channel == after.channel:
             return
 
+        # 채널 생성
         if after.channel != None and after.channel.id == channel_id:
             member_view_role = discord.utils.get(
                 member.guild.roles, id=config["READING_CHANNEL_VIEW_ID"])
@@ -728,7 +730,7 @@ class 채널(commands.Cog):
                 emoji=f"{config['SERVER_EMOJI']['VOICE_RENAME_EMOJI']}", style=discord.ButtonStyle.primary)  # ,label="이름변경")
 
             async def rename_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     await interaction.response.send_modal(이름변경모달())
                 else:
                     await interaction.response.send_message(
@@ -739,7 +741,7 @@ class 채널(commands.Cog):
                 emoji=f"{config['SERVER_EMOJI']['LOCK_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="잠금")
 
             async def lock_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
@@ -756,7 +758,7 @@ class 채널(commands.Cog):
                 emoji=f"{config['SERVER_EMOJI']['UNLOCK_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="해제")
 
             async def unlock_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
@@ -773,7 +775,7 @@ class 채널(commands.Cog):
                 emoji=f"{config['SERVER_EMOJI']['HIDE_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="숨김")
 
             async def hide_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
@@ -791,7 +793,7 @@ class 채널(commands.Cog):
                 emoji=f"{config['SERVER_EMOJI']['UNHIDE_VOICE_EMOJI']}", style=discord.ButtonStyle.primary)  # , label="숨김해제")
 
             async def unhide_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
@@ -830,7 +832,7 @@ class 채널(commands.Cog):
                 emoji=f"{config['SERVER_EMOJI']['VOICE_LIMIT_USER_EMOJI']}", style=discord.ButtonStyle.primary)
 
             async def set_limit_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     await interaction.response.send_modal(인원설정모달())
                 else:
                     await interaction.response.send_message(
@@ -927,7 +929,7 @@ class 채널(commands.Cog):
                 emoji=f"♂", style=discord.ButtonStyle.primary)
 
             async def male_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
@@ -946,7 +948,7 @@ class 채널(commands.Cog):
                 emoji=f"♀", style=discord.ButtonStyle.primary)
 
             async def female_button_callback(interaction: discord.Interaction):
-                if member.id == interaction.user.id:
+                if Channels[voice_channel.id]["owner"].id == interaction.user.id:
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
@@ -1018,22 +1020,15 @@ class 채널(commands.Cog):
                     Channels[voice_channel.id]["last_message"] = await text_channel.send(embed=embed, view=view)
                     await asyncio.sleep(100)
 
-        # if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
-        #     await Channels[after.channel.id]["text_channel"].set_permissions(member, view_channel=True)
-        #     await text_channel.send("하이")
-            # if before.channel is None and after.channel is not None:
-
-        # channel_id는 config에서 설정한 대본방을 생성하는 음성채널이다.  category_id는 config에서 설정한 대본방 전체 카테고리이다.
-
+        # 채널 삭제
         if before.channel != None and before.channel.category.id == category_id and before.channel.members == [] and not before.channel.id == channel_id:
             await asyncio.sleep(2.5)
             await Channels[before.channel.id]["text_channel"].delete()
             await before.channel.delete()
             Channels.pop(before.channel.id)
 
-        if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
-            # print(Channels)
 
+        if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
             await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
             if Channels[after.channel.id]["is_reading"] != None and Channels[after.channel.id]["is_reading"]:
@@ -1046,10 +1041,18 @@ class 채널(commands.Cog):
             else:
                 await Channels[after.channel.id]["text_channel"].send(content=f"⛅ 배우입장 | {member.mention}님 안녕하세요. 현재 <#{after.channel.id}>은 `{Channels[after.channel.id]['owner'].name}` 님의 대본방입니다.")
 
+        # 음성 채널에서 나갈때
         if before.channel != None and before.channel.category.id == category_id and before.channel.id != channel_id:
             try:
                 await Channels[before.channel.id]["text_channel"].set_permissions(
-                    member, view_channel=False)
+                    member, view_channel=False, manage_channels=False)
+                # 나간 사람이 방장이였으면
+                if member.id == Channels[before.channel.id]["owner"].id:
+                    await before.channel.set_permissions(member, manage_channels=False)
+                    Channels[before.channel.id]["owner"] = before.channel.members[0]
+                    await Channels[before.channel.id]["text_channel"].set_permissions(Channels[before.channel.id]["owner"], manage_channels=True)
+                    await before.channel.set_permissions(Channels[before.channel.id]["owner"], manage_channels=True)
+                    await Channels[before.channel.id]["text_channel"].send(content=f"🌙 배우퇴장 | {member.mention}님은 방장이였기에 <#{before.channel.id}>의 방장이 {Channels[before.channel.id]['owner'].mention}님으로 변경되었습니다.")
             except Exception as e:
                 print(e)
                 print(Channels)
