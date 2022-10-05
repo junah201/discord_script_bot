@@ -1,3 +1,4 @@
+from tkinter import E
 import discord
 from discord.ext import commands, tasks
 
@@ -38,7 +39,7 @@ class MyBot(commands.Bot):
         for ext in self.initial_extension:
             await self.load_extension(ext)
 
-        await bot.tree.sync(guild=discord.Object(id=config['GUILD_ID']))
+        await bot.tree.sync(guild=discord.Object(id=827801772143017994))
 
     async def on_ready(self):
         # 기본 역할 채널 세팅
@@ -341,9 +342,9 @@ class MyBot(commands.Bot):
         gather_dashboard_view = gether_view(timeout=120)
         gather_dashboard_embed.set_thumbnail(
             url="https://i.imgur.com/L1VJKG5.png")
-        gather_dashboard_embed.set_image(url="https://i.imgur.com/kuy5ynB.gif")
-        gather_dashboard_embed.set_author(
-            name=f"REC 배우 모집 기능 '모여 대시보드'", icon_url="https://i.imgur.com/JGSMPZ4.png")
+        gather_dashboard_embed.set_image(url = "https://i.imgur.com/kuy5ynB.gif")
+        gather_dashboard_embed.set_author(name=f"REC 배우 모집 기능 '모여 대시보드'",
+                                          icon_url="https://i.imgur.com/JGSMPZ4.png")
         Gather_message = await gather_channel.send(embed=gather_dashboard_embed, view=gather_dashboard_view)
 
 

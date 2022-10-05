@@ -829,7 +829,7 @@ class 대본(commands.Cog):
 
         if not 맨션:
             open_actor = f"{interaction.user.mention}"
-            await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
+            await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다. <@&{config['ACTOR_ROLE_ID']}>", embed=embed, view=view, allowed_mentions=discord.AllowedMentions())
         else:
             await interaction.response.send_message(f"{interaction.user.mention}님께서 새로운 무대를 여셨습니다.", embed=embed, view=view)
 

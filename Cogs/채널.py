@@ -90,14 +90,14 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
         label='남', style=discord.TextStyle.short, max_length=2)
     여 = discord.ui.TextInput(
         label='여', style=discord.TextStyle.short, max_length=2)
+    category_script = discord.ui.TextInput(
+        label='카테고리(0 : 전체, 1: 애니, 2: 영화&드라마, 3 : 라디오 드라마)', style=discord.TextStyle.short, max_length=7)
 
-    # for type in ["애니", "영화&드라마", "라디오 드라마"]:
-    #     카테고리.add_option(label=type, value=type)
-    # 카테고리.append_option(discord.SelectOption(label=type))
 
     async def on_submit(self, interaction: discord.Interaction):
         self.남 = int(self.남.value)
         self.여 = int(self.여.value)
+        self.category_script = self.category_script.value
 
         datas = {}
 
@@ -107,13 +107,23 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
             if len(file) == 11 and int(file[0]) <= self.남 and int(file[2]) <= self.여 and int(file[0]) + int(file[2]) + int(file[4]) == self.남 + self.여:
                 with open(f"./DB/Script/{file}", "r", encoding="utf-8-sig") as json_file:
                     tmp = json.load(json_file)
-                    for 카테고리 in ["애니", "영화&드라마", "라디오 드라마"]:
-                        if tmp.get(카테고리):
-                            datas.update(tmp.get(카테고리))
+                    if self.category_script == "0":
+                        for 카테고리 in ["애니", "영화&드라마", "라디오 드라마"]:
+                            if tmp.get(카테고리):
+                                datas.update(tmp.get(카테고리))
+                    elif self.category_script == "1":
+                        if tmp.get("애니"):
+                            datas.update(tmp.get("애니"))
+                    elif self.category_script == "2":
+                        if tmp.get("영화&드라마"):
+                            datas.update(tmp.get("영화&드라마"))
+                    elif self.category_script == "3":
+                        if tmp.get("라디오 드라마"):
+                            datas.update(tmp.get("라디오 드라마"))
+
 
         id = random.choice(list(datas.keys()))
 
-        print(1)
         with open(f"./DB/Script/Script.json", "r", encoding="utf-8-sig") as json_file:
             script_list = json.load(json_file)
 
@@ -122,38 +132,26 @@ class 랜덤대본모달(discord.ui.Modal, title='랜덤대본'):
 
         script = script_data[script_list[str(id)]['type']][str(id)]
 
-        print(1)
-        print(1)
         if script['rating'] == 0:
-            embed = discord.Embed(
-                title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)
-            embed.set_author(name=f'RANDOM 대본!!!!',
-                             icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
-            embed.add_field(
-                name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
-            embed.add_field(
-                name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
-            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png",
-                             text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
+            embed_s = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)  
+            embed_s.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed_s.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
+            embed_s.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
+            embed_s.add_field(name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
+            embed_s.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png", text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
 
+        
         else:
-            embed = discord.Embed(
-                title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)
-            embed.set_author(name=f'RANDOM 대본!!!!',
-                             icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
-            embed.add_field(
-                name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
-            embed.add_field(
-                name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
-            embed.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png",
-                             text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
+            embed_s = discord.Embed(title=f"《 ឵ ឵឵ ឵ ឵឵ ឵{script_list[str(id)]['gender']} ឵ ឵឵ ឵ ឵឵ ឵》\n{script_list[str(id)]['name']}", description=f"[ID : {id}]\n__{script['link']}__", color=0xff8671)  
+            embed_s.set_author(name=f'RANDOM 대본!!!!', icon_url="https://i.imgur.com/JGSMPZ4.png")
+            embed_s.set_thumbnail(url="https://i.imgur.com/X0RO3IF.png")
+            embed_s.add_field(name="장르", value=f"{script_list[str(id)]['type']}", inline=True)
+            embed_s.add_field(name="평점", value=f"{script['rating']}점 ({script['rating_users']}명)", inline=True)
+            embed_s.set_footer(icon_url="https://i.imgur.com/L1VJKG5.png", text=f"추가자 : {script['adder']} | 추가된 시간 : {script['time']}")
 
-        print(1)
-        await interaction.response.send_message(embed=embed)
-        await 명령어점수(interaction, self)
-
+        await interaction.response.send_message(embed=embed_s)
+        user = interaction.guild.members
+        await 명령어점수(user, interaction, self)
 
 '''
         datas = {}
@@ -498,7 +496,7 @@ class 채널(commands.Cog):
             #     name="뽑기", value="각각의 유저들에게 랜덤한 번호를 부여", inline=False)
             embed.set_author(
                 name="REC 대시보드", icon_url="https://i.imgur.com/JGSMPZ4.png")
-            embed.set_image(url="https://i.imgur.com/qVpClGR.png")
+            embed.set_image(url="https://i.imgur.com/FW50TH3.png")
             embed.set_footer(text="위 설명을 보시고 아래 버튼을 사용해 주세요")
             view = discord.ui.View(timeout=None)
 
@@ -789,8 +787,10 @@ class 채널(commands.Cog):
                     channel = interaction.user.voice.channel
                     overwrite = channel.overwrites_for(
                         interaction.guild.default_role)
-                    overwrite.view_channel = True
+                    overwrite.view_channel = False
                     await channel.set_permissions(interaction.guild.get_role(config["READING_CHANNEL_VIEW_ID"]), view_channel=True)
+                    await channel.set_permissions(interaction.guild.get_role(config["MALE_ROLE_ID"]), view_channel=False)
+                    await channel.set_permissions(interaction.guild.get_role(config["FEMALE_ROLE_ID"]), view_channel=False)
                     await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
                     await interaction.response.send_message(
                         f"<:EYEON:1006084183849959464>᲻|᲻《 ឵ ឵឵ ឵ ឵឵ ឵<#{channel.id}> ឵ ឵឵ ឵ ឵឵ ឵》의 ``숨김``기능을 비활성화 했습니다. 🔵 ``서버원에게 해당 음성대화가 다시 보입니다.``", ephemeral=False)
@@ -915,6 +915,44 @@ class 채널(commands.Cog):
                 await interaction.response.send_modal(랜덤대본모달())
             random_script_button.callback = random_script_button_callback
 
+            male_button = discord.ui.Button(
+                emoji=f"♂", style=discord.ButtonStyle.primary)
+
+            async def male_button_callback(interaction: discord.Interaction):
+                if member.id == interaction.user.id:
+                    channel = interaction.user.voice.channel
+                    overwrite = channel.overwrites_for(
+                        interaction.guild.default_role)
+                    overwrite.view_channel = False
+                    await channel.set_permissions(interaction.guild.get_role(config["READING_CHANNEL_VIEW_ID"]), view_channel=False)
+                    await channel.set_permissions(interaction.guild.get_role(config["MALE_ROLE_ID"]), view_channel=True)
+                    await channel.set_permissions(interaction.guild.get_role(config["FEMALE_ROLE_ID"]), view_channel=False)
+                    await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
+                    await interaction.response.send_message(f"""♂ | <@&{config['MALE_ROLE_ID']}> 에게만 대본방이 보이도록 설정합니다.\n__해제__하시려면 우측 상단의 {config['SERVER_EMOJI']['UNHIDE_VOICE_EMOJI']} (숨김해제)를 누르시면 됩니다.  """, ephemeral=False)
+                else:
+                    await interaction.response.send_message(
+                        f"🚫 | ``남성배우 모집`` 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+            male_button.callback = male_button_callback
+
+            female_button = discord.ui.Button(
+                emoji=f"♀", style=discord.ButtonStyle.primary)
+
+            async def female_button_callback(interaction: discord.Interaction):
+                if member.id == interaction.user.id:
+                    channel = interaction.user.voice.channel
+                    overwrite = channel.overwrites_for(
+                        interaction.guild.default_role)
+                    overwrite.view_channel = False
+                    await channel.set_permissions(interaction.guild.get_role(config["READING_CHANNEL_VIEW_ID"]), view_channel=False)
+                    await channel.set_permissions(interaction.guild.get_role(config["FEMALE_ROLE_ID"]), view_channel=True)
+                    await channel.set_permissions(interaction.guild.get_role(config["MALE_ROLE_ID"]), view_channel=False)
+                    await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
+                    await interaction.response.send_message(f"""♀ | <@&{config['FEMALE_ROLE_ID']}> 에게만 대본방이 보이도록 설정합니다.\n__해제__하시려면 우측 상단의 {config['SERVER_EMOJI']['UNHIDE_VOICE_EMOJI']} (숨김해제)를 누르시면 됩니다.  """, ephemeral=False)
+                else:
+                    await interaction.response.send_message(
+                        f"🚫 | ``여성배우 모집`` 버튼은 개설자인 {member.name} 님만 사용할 수 있습니다.", ephemeral=True)
+            female_button.callback = female_button_callback
+            
             view.add_item(gather_button)
             view.add_item(script_button)
             view.add_item(random_script_button)
@@ -933,11 +971,10 @@ class 채널(commands.Cog):
             view.add_item(unhide_button)
             view.add_item(youtube_button)
 
-            # view.add_item(Script_search_button)
+            view.add_item(male_button)
+            view.add_item(female_button)
             view.add_item(set_limit_button)
             view.add_item(rename_button)
-            # view.add_item(increase_limit_button)
-            # view.add_item(decrease_limit_button)
 
             # await text_channel.send(f"<#{voice_channel.id}> 전용의 채팅 채널로 <@&{config['ACTOR_ROLE_ID']}> 입장해 주십시오.")
 
@@ -971,7 +1008,7 @@ class 채널(commands.Cog):
 
                 except:
                     Channels[voice_channel.id]["last_message"] = await text_channel.send(embed=embed, view=view)
-                    await asyncio.sleep(10)
+                    await asyncio.sleep(100)
 
         # if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
         #     await Channels[after.channel.id]["text_channel"].set_permissions(member, view_channel=True)
@@ -987,17 +1024,21 @@ class 채널(commands.Cog):
             Channels.pop(before.channel.id)
 
         if after.channel != None and after.channel.category.id == category_id and after.channel.id != channel_id:
-            # print(Channels)
-
+            #print(Channels)
+            
             await Channels[after.channel.id]["text_channel"].set_permissions(
                 member, view_channel=True)
             if Channels[after.channel.id]["is_reading"] != None and Channels[after.channel.id]["is_reading"]:
-                time_delta = (datetime.datetime.now() -
-                              Channels2[after.channel.id]["start_time"]).seconds
+                time_delta = (datetime.datetime.now() - Channels2[after.channel.id]["start_time"]).seconds
                 if Channels[after.channel.id]["reading_script_type"] == "id":
-                    await Channels[after.channel.id]["text_channel"].send(content=f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60}분 {time_delta % 60} 초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》", embed=대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
+                    await Channels[after.channel.id]["text_channel"].send(content = 
+                    f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60}분 {time_delta % 60} 초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》", embed = 대본시작_엠바드_생성(Channels[after.channel.id]["reading_script"]))
                 elif Channels[after.channel.id]["reading_script_type"] == "link":
-                    await Channels[after.channel.id]["text_channel"].send(content=f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60} 분 {time_delta % 60}초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》")
+                    await Channels[after.channel.id]["text_channel"].send(content = 
+                    f"{member.mention}님 안녕하세요. 현재 대본방은 아래 대본을 진행하는 중입니다.\n\n{Channels[after.channel.id]['reading_script']}\n《 ឵ ឵឵ ឵ ឵឵ ឵⏱ 진행시간 : ``{time_delta // 60} 분 {time_delta % 60}초`` 전에 시작 ឵ ឵឵ ឵ ឵឵ ឵》")
+            else:
+                await Channels[after.channel.id]["text_channel"].send(content = 
+                f"⛅ 배우입장 | {member.mention}님 안녕하세요. 현재 <#{after.channel.id}>은 {Channels[after.channel.id]['member.name']} 님의 대본방입니다.")
 
         if before.channel != None and before.channel.category.id == category_id and before.channel.id != channel_id:
             try:
